@@ -24,6 +24,8 @@ class CampSeason extends Model
         'description',
         'landing_subtitle',
         'announcement_banner',
+        'poster_path',
+        'core_values',
     ];
 
     protected function casts(): array
@@ -34,7 +36,54 @@ class CampSeason extends Model
             'price' => 'decimal:2',
             'capacity' => 'integer',
             'is_registration_open' => 'boolean',
+            'core_values' => 'array',
         ];
+    }
+
+    public function getCoreValues(): array
+    {
+        if (!empty($this->core_values) && is_array($this->core_values)) {
+            return $this->core_values;
+        }
+
+        return [
+            [
+                'title' => 'Christ-Centered Faith',
+                'icon' => 'bi-fire',
+                'description' => 'Dynamic worship, powerful morning & evening word sessions, and authentic prayer encounters that ground teenagers in Christ.',
+            ],
+            [
+                'title' => 'Brotherhood & Community',
+                'icon' => 'bi-people-fill',
+                'description' => 'A safe, welcoming family environment where every teenager is known, valued, and built up in genuine Christian fellowship.',
+            ],
+            [
+                'title' => 'Courage & Adventure',
+                'icon' => 'bi-compass-fill',
+                'description' => 'Conquering obstacle trails, outdoor sports, and team wilderness challenges that cultivate resilience and discipline.',
+            ],
+            [
+                'title' => 'Character & Leadership',
+                'icon' => 'bi-award-fill',
+                'description' => 'Instilling moral integrity, responsibility, and empathy so campers return home as positive leaders in their homes and schools.',
+            ],
+            [
+                'title' => 'Pastoral Care & Safety',
+                'icon' => 'bi-shield-fill-check',
+                'description' => 'Trained staff counselors, on-site medical care, safe accommodations, and verified attendance giving parents peace of mind.',
+            ],
+        ];
+    }
+
+    public function getPosterUrl(): string
+    {
+        if ($this->poster_path && file_exists(public_path($this->poster_path))) {
+            return asset($this->poster_path);
+        }
+        if (file_exists(public_path('images/camp-poster.jpg'))) {
+            return asset('images/camp-poster.jpg');
+        }
+        return asset('images/hero-camp.jpg');
     }
 
     public function isRegistrationOpen(): bool

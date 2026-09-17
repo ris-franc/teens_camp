@@ -539,13 +539,45 @@ class AdminDashboardController extends Controller
             'status' => ['required', 'in:draft,active,archived'],
             'description' => ['nullable', 'string'],
             'landing_subtitle' => ['nullable', 'string'],
+            'poster' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'core_values' => ['nullable', 'array'],
         ]);
 
         if ($request->status === 'active') {
             CampSeason::where('id', '!=', $season->id)->where('status', 'active')->update(['status' => 'archived']);
         }
 
-        $season->update($request->all());
+        $data = $request->except(['poster', 'core_values', 'remove_poster']);
+
+        if ($request->boolean('remove_poster')) {
+            $data['poster_path'] = null;
+        } elseif ($request->hasFile('poster')) {
+            $file = $request->file('poster');
+            $extension = $file->getClientOriginalExtension();
+            $filename = 'poster_season_' . $season->id . '_' . time() . '.' . $extension;
+            $directory = public_path('images/posters');
+            if (!file_exists($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            $file->move($directory, $filename);
+            $data['poster_path'] = 'images/posters/' . $filename;
+        }
+
+        if ($request->has('core_values') && is_array($request->core_values)) {
+            $formattedValues = [];
+            foreach ($request->core_values as $item) {
+                if (!empty($item['title'])) {
+                    $formattedValues[] = [
+                        'title' => trim($item['title']),
+                        'icon' => !empty($item['icon']) ? trim($item['icon']) : 'bi-stars',
+                        'description' => trim($item['description'] ?? ''),
+                    ];
+                }
+            }
+            $data['core_values'] = $formattedValues;
+        }
+
+        $season->update($data);
 
         return back()->with('success', "Camp Season '{$season->name}' updated successfully!");
     }

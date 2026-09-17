@@ -1139,6 +1139,62 @@ class CampSystemTest extends TestCase
         $response->assertSee('Print / Download PDF Checklist', false);
         $response->assertSee($teen->name);
     }
+
+    public function test_admin_can_update_camp_poster_and_core_values_and_view_on_landing(): void
+    {
+        $admin = User::where('email', 'admin@church.org')->first();
+        $season = CampSeason::getActive();
+
+        // Admin updates season with custom core values and fake poster
+        $file = \Illuminate\Http\UploadedFile::fake()->create('custom_poster.jpg', 100, 'image/jpeg');
+
+        $response = $this->actingAs($admin, 'staff')->post("/backoffice/admin/seasons/{$season->id}", [
+            'name' => $season->name,
+            'year' => $season->year,
+            'theme' => 'Radical Faith 2026',
+            'start_date' => $season->start_date->format('Y-m-d H:i:s'),
+            'end_date' => $season->end_date->format('Y-m-d H:i:s'),
+            'venue' => $season->venue,
+            'price' => $season->price,
+            'capacity' => $season->capacity,
+            'status' => 'active',
+            'poster' => $file,
+            'core_values' => [
+                [
+                    'title' => 'Unshakeable Holiness',
+                    'icon' => 'bi-shield-shaded',
+                    'description' => 'Walking in absolute purity and purpose throughout modern teenage life.',
+                ],
+                [
+                    'title' => 'Kingdom Resilience',
+                    'icon' => 'bi-lightning-charge-fill',
+                    'description' => 'Standing bold in adversity through scripture memorization.',
+                ],
+            ],
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('success');
+
+        // Check season was updated
+        $season->refresh();
+        $this->assertNotNull($season->poster_path);
+        $this->assertCount(2, $season->core_values);
+        $this->assertEquals('Unshakeable Holiness', $season->core_values[0]['title']);
+
+        // Check landing page reflects updated core values and poster
+        $landingResponse = $this->get('/');
+        $landingResponse->assertStatus(200);
+        $landingResponse->assertSee('Unshakeable Holiness');
+        $landingResponse->assertSee('Walking in absolute purity and purpose');
+        $landingResponse->assertSee('Kingdom Resilience');
+        $landingResponse->assertSee($season->poster_path);
+
+        // Clean up uploaded test file
+        if (file_exists(public_path($season->poster_path))) {
+            @unlink(public_path($season->poster_path));
+        }
+    }
 }
 
 

@@ -314,7 +314,7 @@
             <div class="col-lg-5">
                 {{-- Official Camp Poster Frame --}}
                 <div class="camp-poster-frame">
-                    <img src="{{ asset('images/camp-poster.jpg') }}"
+                    <img src="{{ $season ? $season->getPosterUrl() : asset('images/camp-poster.jpg') }}"
                          onerror="this.onerror=null;this.src='{{ asset('images/hero-camp.jpg') }}';"
                          alt="{{ $season ? $season->name : 'Teen Camp' }} Official Poster"
                          class="camp-poster-img">
@@ -403,71 +403,30 @@
             </p>
         </div>
 
+        @php
+            $coreValues = $season ? $season->getCoreValues() : (new \App\Models\CampSeason())->getCoreValues();
+        @endphp
+
         <div class="row g-4">
-            {{-- Value 1: Christ-Centered Faith --}}
-            <div class="col-md-6 col-lg-4">
-                <div class="value-card">
-                    <div class="value-icon-box">
-                        <i class="bi bi-fire"></i>
+            @foreach($coreValues as $index => $val)
+                @php
+                    $colClass = 'col-md-6 col-lg-4';
+                    if (count($coreValues) % 3 !== 0 && $index >= count($coreValues) - (count($coreValues) % 3)) {
+                        $colClass = (count($coreValues) % 3 === 1) ? 'col-12 col-lg-8 mx-auto' : 'col-md-6 col-lg-6';
+                    }
+                @endphp
+                <div class="{{ $colClass }}">
+                    <div class="value-card h-100">
+                        <div class="value-icon-box">
+                            <i class="bi {{ $val['icon'] ?? 'bi-stars' }}"></i>
+                        </div>
+                        <h5 class="fw-bold text-white mb-2" style="font-family: 'Cinzel', Georgia, serif;">{{ $val['title'] }}</h5>
+                        <p class="text-white-50 small mb-0" style="line-height: 1.7;">
+                            {{ $val['description'] }}
+                        </p>
                     </div>
-                    <h5 class="fw-bold text-white mb-2" style="font-family: 'Cinzel', Georgia, serif;">Christ-Centered Faith</h5>
-                    <p class="text-white-50 small mb-0" style="line-height: 1.7;">
-                        Dynamic worship, powerful morning &amp; evening word sessions, and authentic prayer encounters that ground teenagers in Christ.
-                    </p>
                 </div>
-            </div>
-
-            {{-- Value 2: Authentic Community --}}
-            <div class="col-md-6 col-lg-4">
-                <div class="value-card">
-                    <div class="value-icon-box">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-                    <h5 class="fw-bold text-white mb-2" style="font-family: 'Cinzel', Georgia, serif;">Brotherhood &amp; Community</h5>
-                    <p class="text-white-50 small mb-0" style="line-height: 1.7;">
-                        A safe, welcoming family environment where every teenager is known, valued, and built up in genuine Christian fellowship.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Value 3: Courage & High Adventure --}}
-            <div class="col-md-6 col-lg-4">
-                <div class="value-card">
-                    <div class="value-icon-box">
-                        <i class="bi bi-compass-fill"></i>
-                    </div>
-                    <h5 class="fw-bold text-white mb-2" style="font-family: 'Cinzel', Georgia, serif;">Courage &amp; Adventure</h5>
-                    <p class="text-white-50 small mb-0" style="line-height: 1.7;">
-                        Conquering obstacle trails, outdoor sports, and team wilderness challenges that cultivate resilience and discipline.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Value 4: Character & Leadership --}}
-            <div class="col-md-6 col-lg-6">
-                <div class="value-card">
-                    <div class="value-icon-box">
-                        <i class="bi bi-award-fill"></i>
-                    </div>
-                    <h5 class="fw-bold text-white mb-2" style="font-family: 'Cinzel', Georgia, serif;">Character &amp; Leadership</h5>
-                    <p class="text-white-50 small mb-0" style="line-height: 1.7;">
-                        Instilling moral integrity, responsibility, and empathy so campers return home as positive leaders in their homes and schools.
-                    </p>
-                </div>
-            </div>
-
-            {{-- Value 5: Pastoral Care & Safety --}}
-            <div class="col-md-12 col-lg-6">
-                <div class="value-card">
-                    <div class="value-icon-box">
-                        <i class="bi bi-shield-fill-check"></i>
-                    </div>
-                    <h5 class="fw-bold text-white mb-2" style="font-family: 'Cinzel', Georgia, serif;">Pastoral Care &amp; Safety</h5>
-                    <p class="text-white-50 small mb-0" style="line-height: 1.7;">
-                        Trained staff counselors, on-site medical care, safe accommodations, and verified attendance giving parents peace of mind.
-                    </p>
-                </div>
-            </div>
+            @endforeach
         </div>
     </section>
 
