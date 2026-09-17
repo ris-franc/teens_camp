@@ -1,0 +1,15 @@
+﻿services:
+  - type: web
+    name: teens-camp
+    runtime: php
+    plan: free
+    buildCommand: >
+      composer install --no-dev --optimize-autoloader &&
+      php artisan config:cache &&
+      php artisan route:cache &&
+      php artisan view:cache
+    startCommand: php artisan serve --host 0.0.0.0 --port 
+    healthCheckPath: /
+    envVars:
+      - key: APP_KEY
+        generateValue: false
