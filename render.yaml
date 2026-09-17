@@ -1,22 +1,49 @@
 services:
   - type: web
     name: teens-camp
-    runtime: php
+    runtime: docker
     plan: free
-    buildCommand: >
-      composer install --no-dev --optimize-autoloader &&
-      touch database/database.sqlite &&
-      php artisan migrate --force &&
-      php artisan db:seed --force &&
-      php artisan config:cache &&
-      php artisan route:cache &&
-      php artisan view:cache
-    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
     healthCheckPath: /
     envVars:
-      - key: APP_KEY
-        generateValue: false
+      - key: APP_NAME
+        value: "Teen Camp"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: https://teens-camp-2lyz.onrender.com
       - key: DB_CONNECTION
         value: sqlite
-
-
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+      - key: APP_KEY
+        sync: false
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp-relay.brevo.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        value: karis123wer@gmail.com
+      - key: MAIL_FROM_NAME
+        value: "Teen Camp Kenya"
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SMTP_KEY
+        sync: false

@@ -1,0 +1,8 @@
+.git
+.agents
+node_modules
+deploy_infinityfree
+*.sql
+*.zip
+*.bak
+render*.txt
