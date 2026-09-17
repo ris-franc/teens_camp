@@ -5,7 +5,9 @@ services:
     plan: free
     buildCommand: >
       composer install --no-dev --optimize-autoloader &&
+      touch database/database.sqlite &&
       php artisan migrate --force &&
+      php artisan db:seed --force &&
       php artisan config:cache &&
       php artisan route:cache &&
       php artisan view:cache
@@ -14,4 +16,7 @@ services:
     envVars:
       - key: APP_KEY
         generateValue: false
+      - key: DB_CONNECTION
+        value: sqlite
+
 

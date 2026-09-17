@@ -28,6 +28,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (User::where('email', 'admin@church.org')->exists()) {
+            $this->command?->info('Database already seeded. Skipping.');
+            return;
+        }
+
         // 1. Create Core Staff & Test Users (Kenya Context)
         $admin = User::create([
             'name' => 'Pastor David Admin',
