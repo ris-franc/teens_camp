@@ -29,35 +29,57 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // Fast, request-memoized view composer (queries database at most once per request)
         View::composer('*', function ($view) {
             try {
-                if (Schema::hasTable('camp_seasons')) {
+                static $memoizedSeason = null;
+                static $memoizedAllSeasons = null;
+                static $memoizedUser = null;
+                static $memoizedUnreadCount = null;
+
+                if (app()->runningUnitTests() || $memoizedAllSeasons === null) {
+                    $memoizedAllSeasons = CampSeason::orderByDesc('year')->get();
                     $selectedSeasonId = session('admin_selected_season_id');
                     $season = null;
                     if ($selectedSeasonId) {
-                        $season = CampSeason::find($selectedSeasonId);
+                        $season = $memoizedAllSeasons->firstWhere('id', $selectedSeasonId);
                     }
                     if (!$season) {
-                        $season = CampSeason::getActive();
+                        $season = $memoizedAllSeasons->firstWhere('status', 'active') ?? $memoizedAllSeasons->first();
                     }
-                    $allSeasons = CampSeason::orderByDesc('year')->get();
-                    $view->with('currentSeason', $season);
-                    $view->with('allSeasons', $allSeasons);
+                    $memoizedSeason = $season;
                 }
 
-                $user = Auth::guard('web')->user() ?? Auth::guard('staff')->user();
-                if ($user && Schema::hasTable('notifications')) {
-                    $unreadCount = Notification::where(function ($q) use ($user) {
-                        $q->where('user_id', $user->id)
-                          ->orWhere('target_role', 'all')
-                          ->orWhere('target_role', $user->role);
-                    })->where('is_read', false)->count();
+                $view->with('currentSeason', $memoizedSeason);
+                $view->with('allSeasons', $memoizedAllSeasons);
+
+                $user = Auth::guard('staff')->user() ?? Auth::guard('web')->user();
+                if ($user) {
+                    static $memoizedTopNotifs = null;
+                    if (app()->runningUnitTests() || $memoizedUser !== $user->id) {
+                        $memoizedUser = $user->id;
+                        $memoizedTopNotifs = Notification::where(function ($q) use ($user) {
+                            $q->where('user_id', $user->id)
+                              ->orWhere('target_role', 'all')
+                              ->orWhere('target_role', $user->role);
+                        })->latest('id')->take(6)->get();
+
+                        $memoizedUnreadCount = Notification::where(function ($q) use ($user) {
+                            $q->where('user_id', $user->id)
+                              ->orWhere('target_role', 'all')
+                              ->orWhere('target_role', $user->role);
+                        })->where('is_read', false)->count();
+                    }
 
                     $view->with('currentUser', $user);
-                    $view->with('unreadNotificationsCount', $unreadCount);
+                    $view->with('unreadNotificationsCount', $memoizedUnreadCount);
+                    $view->with('unreadNotifsCount', $memoizedUnreadCount);
+                    $view->with('webUnreadCount', $memoizedUnreadCount);
+                    $view->with('topNavNotifs', $memoizedTopNotifs ?? collect());
+                    $view->with('webNotifs', $memoizedTopNotifs ?? collect());
                 }
             } catch (\Throwable $e) {
-                // Ignore during early bootstrap/migrations
+                // Fail gracefully during migrations or bootstrap
             }
         });
     }

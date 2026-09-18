@@ -98,19 +98,8 @@
                 @auth('staff')
                     @php 
                         $staff = Auth::guard('staff')->user(); 
-                        $unreadNotifsCount = \App\Models\Notification::where(function ($q) use ($staff) {
-                            $q->where('user_id', $staff->id)
-                              ->orWhere('target_role', 'all')
-                              ->orWhere('target_role', 'staff')
-                              ->orWhere('target_role', $staff->role);
-                        })->where('is_read', false)->count();
-
-                        $topNavNotifs = \App\Models\Notification::where(function ($q) use ($staff) {
-                            $q->where('user_id', $staff->id)
-                              ->orWhere('target_role', 'all')
-                              ->orWhere('target_role', 'staff')
-                              ->orWhere('target_role', $staff->role);
-                        })->latest('id')->take(6)->get();
+                        $unreadNotifsCount = $unreadNotifsCount ?? 0;
+                        $topNavNotifs = $topNavNotifs ?? collect();
                     @endphp
 
                     <!-- Notification Bar & Dropdown -->

@@ -85,17 +85,8 @@
                     @auth('web')
                         @php
                             $webUser = Auth::guard('web')->user();
-                            $webUnreadCount = \App\Models\Notification::where(function ($q) use ($webUser) {
-                                $q->where('user_id', $webUser->id)
-                                  ->orWhere('target_role', 'all')
-                                  ->orWhere('target_role', $webUser->role);
-                            })->where('is_read', false)->count();
-
-                            $webNotifs = \App\Models\Notification::where(function ($q) use ($webUser) {
-                                $q->where('user_id', $webUser->id)
-                                  ->orWhere('target_role', 'all')
-                                  ->orWhere('target_role', $webUser->role);
-                            })->latest('id')->take(6)->get();
+                            $webUnreadCount = $webUnreadCount ?? 0;
+                            $webNotifs = $webNotifs ?? collect();
                         @endphp
 
                         @if($webUser->isTeen())
