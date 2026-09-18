@@ -188,7 +188,7 @@
 
                 @auth('staff')
                     <div class="dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white text-decoration-none" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white text-decoration-none" href="#" id="staffProfileDropdownBtn" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                             @if($staff->avatar)
                                 <img src="{{ asset('storage/' . $staff->avatar) }}" class="rounded-circle border border-danger" width="30" height="30" alt="Avatar">
                             @else
@@ -361,83 +361,7 @@
     <!-- Local Camp JS -->
     <script src="{{ asset('js/camp-theme.js') }}"></script>
 
-    <script>
-        // Bulletproof dropdown click handler supporting both Bootstrap Dropdown & Vanilla Fallback
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function (btn) {
-                btn.addEventListener('click', function (e) {
-                    const parent = this.closest('.dropdown');
-                    if (!parent) return;
-                    const menu = parent.querySelector('.dropdown-menu');
-                    if (!menu) return;
 
-                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-                        const inst = bootstrap.Dropdown.getOrCreateInstance(this);
-                        if (menu.classList.contains('show')) {
-                            inst.hide();
-                        } else {
-                            // Close other open dropdowns
-                            document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
-                                if (m !== menu) {
-                                    const p = m.closest('.dropdown');
-                                    const b = p ? p.querySelector('[data-bs-toggle="dropdown"]') : null;
-                                    if (b && bootstrap.Dropdown.getInstance(b)) {
-                                        bootstrap.Dropdown.getInstance(b).hide();
-                                    } else {
-                                        m.classList.remove('show');
-                                    }
-                                }
-                            });
-                            inst.show();
-                        }
-                    } else {
-                        // Vanilla fallback if bootstrap JS was blocked
-                        const isShown = menu.classList.contains('show');
-                        document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
-                            if (m !== menu) m.classList.remove('show');
-                        });
-                        document.querySelectorAll('[data-bs-toggle="dropdown"][aria-expanded="true"]').forEach(function (b) {
-                            if (b !== btn) b.setAttribute('aria-expanded', 'false');
-                        });
-
-                        if (isShown) {
-                            menu.classList.remove('show');
-                            this.setAttribute('aria-expanded', 'false');
-                        } else {
-                            menu.classList.add('show');
-                            this.setAttribute('aria-expanded', 'true');
-                        }
-                    }
-                    e.preventDefault();
-                    e.stopPropagation();
-                });
-            });
-
-            // Close dropdowns when clicking anywhere outside
-            document.addEventListener('click', function (e) {
-                if (!e.target.closest('.dropdown')) {
-                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-                        document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
-                            const p = m.closest('.dropdown');
-                            const b = p ? p.querySelector('[data-bs-toggle="dropdown"]') : null;
-                            if (b && bootstrap.Dropdown.getInstance(b)) {
-                                bootstrap.Dropdown.getInstance(b).hide();
-                            } else {
-                                m.classList.remove('show');
-                            }
-                        });
-                    } else {
-                        document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
-                            m.classList.remove('show');
-                        });
-                        document.querySelectorAll('[data-bs-toggle="dropdown"][aria-expanded="true"]').forEach(function (b) {
-                            b.setAttribute('aria-expanded', 'false');
-                        });
-                    }
-                }
-            });
-        });
-    </script>
 
     @if($currentSeason)
         <script>

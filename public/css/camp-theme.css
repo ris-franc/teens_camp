@@ -44,7 +44,7 @@
 html {
     box-sizing: border-box;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 *, *:before, *:after {
     box-sizing: inherit;
@@ -57,7 +57,7 @@ body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip;
     display: flex;
     flex-direction: column;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -251,9 +251,10 @@ h1, h2, h3, h4, .camp-logo-font, .navbar-brand, .landing-title, .section-title {
     font-size: 0.85rem;
     font-weight: 500;
     padding: 6px 0;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1030 !important;
     overflow: visible !important;
-    position: relative;
-    z-index: 1030;
 }
 
 .camp-topbar .dropdown {
@@ -746,7 +747,7 @@ h1, h2, h3, h4, .camp-logo-font, .navbar-brand, .landing-title, .section-title {
 @media (max-width: 767.98px) {
     body {
         font-size: 14px;
-        overflow-x: hidden;
+        overflow-x: clip;
     }
 
     .container-fluid, .container {
