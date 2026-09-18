@@ -28,8 +28,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (User::where('email', 'admin@church.org')->exists()) {
-            $this->command?->info('Database already seeded. Skipping.');
+        if (User::count() > 0) {
+            $this->command?->info('Database already has users. Skipping seeder.');
             return;
         }
 

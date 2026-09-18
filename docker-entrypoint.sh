@@ -21,7 +21,7 @@ chmod 664 /var/www/html/database/database.sqlite
 
 # Run Laravel migrations and idempotent seeding
 php artisan migrate --force
-php artisan db:seed --force
+php artisan db:seed --force || true
 php artisan config:clear
 php artisan config:cache
 php artisan route:cache
