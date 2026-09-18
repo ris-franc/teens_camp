@@ -251,7 +251,35 @@ h1, h2, h3, h4, .camp-logo-font, .navbar-brand, .landing-title, .section-title {
     font-size: 0.85rem;
     font-weight: 500;
     padding: 6px 0;
+    overflow: visible !important;
+    position: relative;
+    z-index: 1030;
 }
+
+.camp-topbar .dropdown {
+    position: relative;
+}
+
+.camp-topbar .dropdown-menu {
+    z-index: 1060 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.camp-topbar .dropdown-menu-end {
+    right: 0 !important;
+    left: auto !important;
+}
+
+.camp-topbar .dropdown-menu-start {
+    left: 0 !important;
+    right: auto !important;
+}
+
+.no-caret::after,
+#camp-notifications-dropdown .dropdown-toggle::after {
+    display: none !important;
+}
+
 
 /* Live Countdown Component */
 .countdown-box {

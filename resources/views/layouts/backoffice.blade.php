@@ -22,7 +22,7 @@
 </head>
 <body>
     <!-- Unified Executive Backoffice Navbar -->
-    <header class="camp-topbar py-2 sticky-top shadow-sm" style="max-width: 100vw; overflow-x: clip;">
+    <header class="camp-topbar py-2 sticky-top shadow-sm" style="overflow: visible !important; z-index: 1030;">
         <div class="container-fluid px-2 px-md-3 d-flex align-items-center justify-content-between gap-2 gap-md-3">
             <!-- Brand & Security Guard Badge -->
             <div class="d-flex align-items-center gap-2">
@@ -42,10 +42,10 @@
             <div class="d-flex align-items-center gap-2">
                 @if(isset($allSeasons) && $allSeasons->count() > 0)
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-dark dropdown-toggle text-white border border-secondary py-1 px-2" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-sm btn-dark dropdown-toggle text-white border border-secondary py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-calendar3 me-1 text-danger"></i> <strong>{{ $currentSeason ? $currentSeason->year : 'Season' }}</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-center shadow">
+                        <ul class="dropdown-menu dropdown-menu-start shadow-lg border border-secondary" style="z-index: 1060;">
                             <li><h6 class="dropdown-header">Switch Season View</h6></li>
                             @foreach($allSeasons as $s)
                                 <li>
@@ -115,8 +115,8 @@
 
                     <!-- Notification Bar & Dropdown -->
                     <div class="dropdown" id="camp-notifications-dropdown">
-                        <button class="btn btn-outline-secondary btn-sm rounded-circle position-relative border-secondary text-white p-0" 
-                                type="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                        <button class="btn btn-outline-secondary btn-sm rounded-circle position-relative border-secondary text-white p-0 dropdown-toggle no-caret" 
+                                type="button" id="campNotifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" 
                                 title="System Activity & Notifications" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">
                             <i class="bi bi-bell-fill"></i>
                             @if($unreadNotifsCount > 0)
@@ -125,7 +125,7 @@
                                 </span>
                             @endif
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border border-danger-subtle bg-dark" style="width: 360px; max-width: 90vw;">
+                        <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border border-danger-subtle bg-dark" style="width: 360px; max-width: 90vw; z-index: 1060;">
                             <div class="p-3 border-bottom border-secondary d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-bell-fill text-danger"></i>
@@ -188,7 +188,7 @@
 
                 @auth('staff')
                     <div class="dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white text-decoration-none" href="#" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white text-decoration-none" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                             @if($staff->avatar)
                                 <img src="{{ asset('storage/' . $staff->avatar) }}" class="rounded-circle border border-danger" width="30" height="30" alt="Avatar">
                             @else
@@ -201,7 +201,7 @@
                                 <small class="badge bg-secondary text-uppercase" style="font-size: 9px;">{{ str_replace('_', ' ', $staff->role) }}</small>
                             </div>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border border-secondary" style="z-index: 1060;">
                             <li>
                                 <a class="dropdown-item" href="{{ route('backoffice.profile') }}">
                                     <i class="bi bi-person-gear me-2 text-danger"></i> Profile & PIN
@@ -209,12 +209,9 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <form action="{{ route('backoffice.logout') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
-                                    </button>
-                                </form>
+                                <a class="dropdown-item text-danger" href="{{ route('backoffice.logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -288,6 +285,14 @@
                             <i class="bi bi-cart4"></i> Campaign Sales & POS
                         </a>
                     @endif
+
+                    <div class="small text-uppercase text-muted fw-bold px-3 mt-3 mb-2">My Account</div>
+                    <a href="{{ route('backoffice.profile') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.profile') ? 'active' : '' }}">
+                        <i class="bi bi-person-gear text-danger"></i> Profile &amp; PIN
+                    </a>
+                    <a href="{{ route('backoffice.logout') }}" class="backoffice-nav-link rounded text-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
                 </div>
             </aside>
         @endauth
@@ -346,11 +351,93 @@
         </div>
     </div>
 
-    <!-- Bootstrap Bundle JS (CDN + Local fallback) -->
+    <!-- Bootstrap Bundle JS with Conditional Fallback -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        if (typeof bootstrap === 'undefined') {
+            document.write('<script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"><\/script>');
+        }
+    </script>
     <!-- Local Camp JS -->
     <script src="{{ asset('js/camp-theme.js') }}"></script>
+
+    <script>
+        // Bulletproof dropdown click handler supporting both Bootstrap Dropdown & Vanilla Fallback
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    const parent = this.closest('.dropdown');
+                    if (!parent) return;
+                    const menu = parent.querySelector('.dropdown-menu');
+                    if (!menu) return;
+
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                        const inst = bootstrap.Dropdown.getOrCreateInstance(this);
+                        if (menu.classList.contains('show')) {
+                            inst.hide();
+                        } else {
+                            // Close other open dropdowns
+                            document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
+                                if (m !== menu) {
+                                    const p = m.closest('.dropdown');
+                                    const b = p ? p.querySelector('[data-bs-toggle="dropdown"]') : null;
+                                    if (b && bootstrap.Dropdown.getInstance(b)) {
+                                        bootstrap.Dropdown.getInstance(b).hide();
+                                    } else {
+                                        m.classList.remove('show');
+                                    }
+                                }
+                            });
+                            inst.show();
+                        }
+                    } else {
+                        // Vanilla fallback if bootstrap JS was blocked
+                        const isShown = menu.classList.contains('show');
+                        document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
+                            if (m !== menu) m.classList.remove('show');
+                        });
+                        document.querySelectorAll('[data-bs-toggle="dropdown"][aria-expanded="true"]').forEach(function (b) {
+                            if (b !== btn) b.setAttribute('aria-expanded', 'false');
+                        });
+
+                        if (isShown) {
+                            menu.classList.remove('show');
+                            this.setAttribute('aria-expanded', 'false');
+                        } else {
+                            menu.classList.add('show');
+                            this.setAttribute('aria-expanded', 'true');
+                        }
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            // Close dropdowns when clicking anywhere outside
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.dropdown')) {
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
+                        document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
+                            const p = m.closest('.dropdown');
+                            const b = p ? p.querySelector('[data-bs-toggle="dropdown"]') : null;
+                            if (b && bootstrap.Dropdown.getInstance(b)) {
+                                bootstrap.Dropdown.getInstance(b).hide();
+                            } else {
+                                m.classList.remove('show');
+                            }
+                        });
+                    } else {
+                        document.querySelectorAll('.dropdown-menu.show').forEach(function (m) {
+                            m.classList.remove('show');
+                        });
+                        document.querySelectorAll('[data-bs-toggle="dropdown"][aria-expanded="true"]').forEach(function (b) {
+                            b.setAttribute('aria-expanded', 'false');
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 
     @if($currentSeason)
         <script>

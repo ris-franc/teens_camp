@@ -3,12 +3,13 @@ FROM php:8.2-apache
 # Install required system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
     libsqlite3-dev \
+    libpq-dev \
     libzip-dev \
     zip \
     unzip \
     git \
     curl \
-    && docker-php-ext-install pdo pdo_sqlite zip opcache \
+    && docker-php-ext-install pdo pdo_sqlite pdo_pgsql zip opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache rewrite module

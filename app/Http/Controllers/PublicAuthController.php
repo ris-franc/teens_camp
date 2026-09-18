@@ -89,16 +89,23 @@ class PublicAuthController extends Controller
 
     public function showProfile()
     {
-        $user = Auth::guard('web')->user();
+        $user = Auth::guard('web')->user() ?? Auth::guard('staff')->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         return view('profile.show', [
             'user' => $user,
-            'isStaff' => false,
+            'isStaff' => $user->isStaff(),
         ]);
     }
 
     public function updateProfile(Request $request)
     {
-        $user = Auth::guard('web')->user();
+        $user = Auth::guard('web')->user() ?? Auth::guard('staff')->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],

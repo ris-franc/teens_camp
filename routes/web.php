@@ -38,7 +38,17 @@ Route::post('/mpesa/callback', [\App\Http\Controllers\MpesaController::class, 'd
 // 2. Public Authentication (Teens & Parents - Guard: web)
 Route::get('/login', [PublicAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [PublicAuthController::class, 'login'])->name('public.login.post');
-Route::post('/logout', [PublicAuthController::class, 'logout'])->name('public.logout');
+Route::match(['get', 'post'], '/logout', [PublicAuthController::class, 'logout'])->name('public.logout');
+
+Route::get('/pin', function () {
+    if (\Illuminate\Support\Facades\Auth::guard('staff')->check()) {
+        return redirect()->route('backoffice.profile');
+    }
+    if (\Illuminate\Support\Facades\Auth::guard('web')->check()) {
+        return redirect()->route('public.profile');
+    }
+    return redirect()->route('login');
+})->name('pin');
 
 Route::middleware('auth:web')->group(function () {
     Route::get('/set-pin', [PublicAuthController::class, 'showPinSetup'])->name('public.pin.setup');
@@ -86,7 +96,10 @@ Route::middleware('auth:web')->group(function () {
 Route::prefix('backoffice')->name('backoffice.')->group(function () {
     Route::get('/login', [BackofficeAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [BackofficeAuthController::class, 'login'])->name('login.post');
-    Route::post('/logout', [BackofficeAuthController::class, 'logout'])->name('logout');
+    Route::match(['get', 'post'], '/logout', [BackofficeAuthController::class, 'logout'])->name('logout');
+    Route::get('/pin', function () {
+        return redirect()->route('backoffice.profile');
+    })->name('pin');
 
     Route::middleware('auth:staff')->group(function () {
         Route::get('/set-pin', [BackofficeAuthController::class, 'showPinSetup'])->name('pin.setup');

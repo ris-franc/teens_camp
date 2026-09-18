@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/mpesa/*',
             'mpesa/callback',
+            'logout',
+            'backoffice/logout',
         ]);
         $middleware->alias([
             'pin.check' => \App\Http\Middleware\CheckPinResetRequired::class,
