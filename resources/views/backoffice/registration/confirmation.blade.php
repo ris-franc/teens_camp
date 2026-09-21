@@ -79,11 +79,11 @@
                 @endif
 
                 <!-- Action Buttons -->
-                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                    <a href="{{ route('backoffice.registration.desk') }}" class="btn btn-outline-secondary">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 pt-3 border-top">
+                    <a href="{{ route('backoffice.registration.desk') }}" class="btn btn-outline-secondary order-2 order-sm-1 py-2">
                         <i class="bi bi-plus-circle me-1"></i> Register Another Camper
                     </a>
-                    <button type="button" class="btn btn-camp-red" onclick="window.print()">
+                    <button type="button" class="btn btn-camp-red order-1 order-sm-2 py-2" onclick="window.print()">
                         <i class="bi bi-printer-fill me-1"></i> Print Confirmation Slip
                     </button>
                 </div>

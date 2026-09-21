@@ -5,14 +5,14 @@
 @section('content')
 <div class="container-fluid">
     <!-- Header -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
         <div class="d-flex align-items-center gap-3">
-            <span class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; font-size: 20px; font-weight: bold;">
+            <span class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style="width: 44px; height: 44px; font-size: 18px; font-weight: bold;">
                 {{ strtoupper(substr($teen->name, 0, 1)) }}
             </span>
             <div>
-                <div class="d-flex align-items-center gap-2">
-                    <h3 class="fw-bold mb-0">Edit Desk Registration: {{ $teen->name }}</h3>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <h3 class="fw-bold mb-0 fs-5 fs-md-4">Edit Desk Registration: {{ $teen->name }}</h3>
                     @if($registration->status === 'signed_in')
                         <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Signed In</span>
                     @elseif($registration->status === 'registered')
@@ -22,15 +22,15 @@
                     @endif
                 </div>
                 <p class="text-muted small mb-0">
-                    Registered for season: <strong>{{ $season ? $season->name : 'N/A' }}</strong> &bull; Registration ID: <code>#REG-{{ str_pad($registration->id, 5, '0', STR_PAD_LEFT) }}</code>
+                    Season: <strong class="text-white">{{ $season ? $season->name : 'N/A' }}</strong> &bull; <code>#REG-{{ str_pad($registration->id, 5, '0', STR_PAD_LEFT) }}</code>
                 </p>
             </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('backoffice.registration.desk') }}" class="btn btn-outline-secondary btn-sm">
+        <div class="d-grid d-sm-flex gap-2 w-100 w-md-auto">
+            <a href="{{ route('backoffice.registration.desk') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center gap-1 py-2 px-3">
                 <i class="bi bi-arrow-left me-1"></i> Back to Desk
             </a>
-            <a href="{{ route('backoffice.registration.signin') }}" class="btn btn-outline-light btn-sm">
+            <a href="{{ route('backoffice.registration.signin') }}" class="btn btn-outline-light btn-sm d-flex align-items-center justify-content-center gap-1 py-2 px-3">
                 <i class="bi bi-clipboard-check me-1"></i> Camp Day Sign-in
             </a>
         </div>
@@ -182,11 +182,11 @@
                     </div>
 
                     <!-- Submit Actions -->
-                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
-                        <a href="{{ route('backoffice.registration.desk') }}" class="btn btn-outline-secondary">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 pt-3 border-top">
+                        <a href="{{ route('backoffice.registration.desk') }}" class="btn btn-outline-secondary w-100 w-sm-auto order-2 order-sm-1 py-2">
                             <i class="bi bi-x-circle me-1"></i> Cancel Changes
                         </a>
-                        <button type="submit" class="btn btn-camp-red btn-lg px-5">
+                        <button type="submit" class="btn btn-camp-red btn-lg w-100 w-sm-auto px-5 order-1 order-sm-2 py-2">
                             <i class="bi bi-check-circle-fill me-2"></i> Save Registration Changes
                         </button>
                     </div>
