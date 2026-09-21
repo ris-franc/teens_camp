@@ -1296,6 +1296,160 @@ class CampSystemTest extends TestCase
         $viewResponse->assertStatus(200);
         $viewResponse->assertSee('Lucas Baraka');
     }
+
+    public function test_parent_can_return_form_to_teen_with_notification(): void
+    {
+        $season = CampSeason::getActive();
+        $parent = User::where('email', 'parent@church.org')->first();
+        $teen = $parent->teens->first();
+
+        $form = Form::create([
+            'camp_season_id' => $season->id,
+            'title' => 'Camper Activity Preference Survey',
+            'target_role' => 'teen',
+            'requires_parent_approval' => true,
+            'is_published' => true,
+        ]);
+
+        $field = FormField::create([
+            'form_id' => $form->id,
+            'label' => 'Primary Activity',
+            'field_type' => 'text',
+            'is_required' => true,
+            'order_index' => 1,
+        ]);
+
+        // 1. Teen fills and submits form
+        $this->actingAs($teen, 'web')->post("/teen/forms/{$form->id}/submit", [
+            "field_{$field->id}" => 'Archery & Mountain Biking',
+        ]);
+
+        $submission = FormSubmission::where('form_id', $form->id)->where('user_id', $teen->id)->first();
+        $this->assertNotNull($submission);
+        $this->assertEquals('pending_parent_review', $submission->status);
+
+        // 2. Parent returns form to teen
+        $returnResponse = $this->actingAs($parent, 'web')->post(route('parent.forms.return', $submission), [
+            'parent_feedback' => 'Please select Kayaking instead of Mountain Biking for safety.',
+        ]);
+        $returnResponse->assertRedirect();
+        $returnResponse->assertSessionHas('info');
+
+        // 3. Verify submission is marked returned with feedback
+        $submission->refresh();
+        $this->assertEquals('returned', $submission->status);
+        $this->assertEquals('teen', $submission->returned_to_role);
+        $this->assertEquals('Please select Kayaking instead of Mountain Biking for safety.', $submission->parent_feedback);
+
+        // 4. Verify teen received notification
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $teen->id,
+            'title' => 'Form Returned for Corrections',
+        ]);
+
+        // 5. Teen views dashboard and sees returned feedback & revise button
+        $teenDash = $this->actingAs($teen, 'web')->get('/teen/dashboard');
+        $teenDash->assertStatus(200);
+        $teenDash->assertSee('Returned for Correction');
+        $teenDash->assertSee('Please select Kayaking instead of Mountain Biking for safety.');
+        $teenDash->assertSee('Revise &amp; Resubmit', false);
+
+        // 6. Teen resubmits revised answers
+        $resubmitResponse = $this->actingAs($teen, 'web')->post("/teen/forms/{$form->id}/submit", [
+            "field_{$field->id}" => 'Archery & Kayaking',
+        ]);
+        $resubmitResponse->assertRedirect(route('teen.dashboard'));
+
+        $submission->refresh();
+        $this->assertEquals('pending_parent_review', $submission->status);
+
+        // 7. Parent receives notification of revised submission
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $parent->id,
+            'title' => 'Action Required: Revised Camper Form Review',
+        ]);
+    }
+
+    public function test_admin_can_return_submission_to_teen_and_parent_with_notifications(): void
+    {
+        $season = CampSeason::getActive();
+        $admin = User::where('email', 'admin@church.org')->first();
+        $parent = User::where('email', 'parent@church.org')->first();
+        $teen = $parent->teens->first();
+
+        $form = Form::create([
+            'camp_season_id' => $season->id,
+            'title' => 'Camp Medical Clearance & Dietary Form',
+            'target_role' => 'both',
+            'requires_parent_approval' => false,
+            'is_published' => true,
+        ]);
+
+        $field = FormField::create([
+            'form_id' => $form->id,
+            'label' => 'Special Dietary Instructions',
+            'field_type' => 'text',
+            'is_required' => true,
+            'order_index' => 1,
+        ]);
+
+        // 1. Submit form on behalf of camper
+        $this->actingAs($parent, 'web')->post("/parent/forms/{$form->id}/submit", [
+            'teen_id' => $teen->id,
+            "field_{$field->id}" => 'Vegetarian diet required',
+        ]);
+
+        $submission = FormSubmission::where('form_id', $form->id)->where('user_id', $parent->id)->first();
+        $this->assertNotNull($submission);
+        $this->assertEquals('submitted', $submission->status);
+
+        // 2. Admin views backoffice form submissions
+        $backofficeShow = $this->actingAs($admin, 'staff')->get("/backoffice/forms/{$form->id}");
+        $backofficeShow->assertStatus(200);
+        $backofficeShow->assertSee('Return');
+
+        // 3. Admin returns submission to both Teen and Parent
+        $returnResponse = $this->actingAs($admin, 'staff')->post("/backoffice/forms/submissions/{$submission->id}/return", [
+            'return_to' => 'both',
+            'admin_feedback' => 'Please provide specific medical doctor note for food allergy protocol.',
+        ]);
+        $returnResponse->assertRedirect();
+        $returnResponse->assertSessionHas('success');
+
+        // 4. Verify database state
+        $submission->refresh();
+        $this->assertEquals('returned', $submission->status);
+        $this->assertEquals('both', $submission->returned_to_role);
+        $this->assertEquals('Please provide specific medical doctor note for food allergy protocol.', $submission->admin_feedback);
+        $this->assertEquals($admin->id, $submission->returned_by_staff_id);
+
+        // 5. Verify both Teen and Parent received notifications
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $teen->id,
+            'title' => 'Form Returned by Camp Admin',
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $parent->id,
+            'title' => 'Form Returned by Camp Admin',
+        ]);
+
+        // 6. Parent dashboard displays returned banner with feedback and Revise & Resubmit
+        Auth::guard('staff')->logout();
+        $parentDash = $this->actingAs($parent, 'web')->get('/parent/dashboard');
+        $parentDash->assertStatus(200);
+        $parentDash->assertSee('Returned by Camp Administration');
+        $parentDash->assertSee('Please provide specific medical doctor note for food allergy protocol.');
+
+        // 7. Parent resubmits revised form
+        $resubmitResponse = $this->actingAs($parent, 'web')->post("/parent/forms/{$form->id}/submit", [
+            'teen_id' => $teen->id,
+            "field_{$field->id}" => 'Strict Lacto-Vegetarian diet approved by Dr. Mutua',
+        ]);
+        $resubmitResponse->assertRedirect(route('parent.dashboard'));
+
+        $submission->refresh();
+        $this->assertEquals('submitted', $submission->status);
+    }
 }
 
 

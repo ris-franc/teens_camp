@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\CampSeason;
 use App\Models\Form;
 use App\Models\FormField;
+use App\Models\FormSubmission;
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -83,7 +86,75 @@ class FormBuilderController extends Controller
 
     public function show(Form $form)
     {
-        $form->load(['fields', 'submissions.user', 'submissions.teen', 'submissions.values.field']);
+        $form->load(['fields', 'submissions.user', 'submissions.teen', 'submissions.values.field', 'submissions.returnedByStaff']);
         return view('backoffice.forms.show', ['form' => $form]);
+    }
+
+    /**
+     * Admin/Staff returns form submission for correction.
+     */
+    public function returnSubmission(Request $request, FormSubmission $submission)
+    {
+        $request->validate([
+            'return_to' => ['required', 'in:teen,parent,both'],
+            'admin_feedback' => ['required', 'string', 'min:3'],
+        ]);
+
+        $staff = Auth::guard('staff')->user();
+
+        $submission->status = 'returned';
+        $submission->admin_feedback = $request->admin_feedback;
+        $submission->returned_to_role = $request->return_to;
+        $submission->returned_by_staff_id = $staff?->id;
+        $submission->returned_at = now();
+        $submission->save();
+
+        $formTitle = $submission->form->title;
+        $camperName = $submission->teen?->name ?? 'Camper';
+
+        // 1. Notify Teen if return_to is 'teen' or 'both'
+        if (in_array($request->return_to, ['teen', 'both']) && $submission->teen_id) {
+            Notification::notifyUser(
+                $submission->teen_id,
+                "Form Returned by Camp Admin",
+                "Camp Administration returned '{$formTitle}' with instructions: \"{$request->admin_feedback}\"",
+                'form',
+                route('teen.dashboard'),
+                'bi-arrow-repeat text-warning'
+            );
+        }
+
+        // 2. Notify Parent if return_to is 'parent' or 'both'
+        if (in_array($request->return_to, ['parent', 'both'])) {
+            $parentIds = collect();
+
+            if ($submission->user && $submission->user->isParent()) {
+                $parentIds->push($submission->user->id);
+            }
+
+            if ($submission->teen) {
+                $parentsOfTeen = $submission->teen->parents()->pluck('users.id');
+                $parentIds = $parentIds->merge($parentsOfTeen);
+            }
+
+            $parentIds = $parentIds->unique()->filter();
+
+            if ($parentIds->isEmpty() && $submission->user_id) {
+                $parentIds->push($submission->user_id);
+            }
+
+            foreach ($parentIds as $parentId) {
+                Notification::notifyUser(
+                    $parentId,
+                    "Form Returned by Camp Admin",
+                    "Camp Administration returned '{$formTitle}'" . ($submission->teen ? " for {$camperName}" : "") . " with instructions: \"{$request->admin_feedback}\"",
+                    'form',
+                    route('parent.dashboard'),
+                    'bi-arrow-repeat text-warning'
+                );
+            }
+        }
+
+        return back()->with('success', "Form '{$formTitle}' returned to " . ucfirst($request->return_to) . " for revisions.");
     }
 }

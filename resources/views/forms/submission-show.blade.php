@@ -21,7 +21,7 @@
                                     <i class="bi bi-patch-check-fill me-1"></i> Officially Submitted
                                 </span>
                             @elseif($submission->status === 'pending_parent_review')
-                                <span class="badge bg-warning text-dark py-1 px-2" style="font-size: 10px;">
+                                <span class="badge bg-warning text-dark py-1 px-2 fw-bold" style="font-size: 10px;">
                                     <i class="bi bi-hourglass-split me-1"></i> Awaiting Parent Sign-off
                                 </span>
                             @elseif($submission->status === 'returned')
@@ -68,6 +68,17 @@
                     </div>
                 </div>
 
+                {{-- Admin Feedback Alert --}}
+                @if($submission->admin_feedback)
+                    <div class="alert alert-danger mb-4 border-0 p-3 rounded" style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5;">
+                        <div class="fw-bold small text-uppercase mb-1">
+                            <i class="bi bi-exclamation-octagon-fill me-1"></i> Camp Administration Feedback / Instructions:
+                        </div>
+                        <p class="mb-0 small text-white">{{ $submission->admin_feedback }}</p>
+                    </div>
+                @endif
+
+                {{-- Parent Feedback Alert --}}
                 @if($submission->parent_feedback)
                     <div class="alert alert-warning mb-4 border-0 p-3 rounded" style="background: rgba(234, 179, 8, 0.12); color: #FDE047;">
                         <div class="fw-bold small text-uppercase mb-1"><i class="bi bi-chat-quote-fill me-1"></i> Parent Sign-Off Feedback / Notes:</div>
@@ -123,21 +134,64 @@
                     @endforelse
                 </div>
 
-                {{-- Action / Edit Option --}}
+                {{-- Action Bar --}}
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-3 border-top border-secondary border-opacity-25">
                     <a href="{{ $backRoute ?? url()->previous() }}" class="btn btn-outline-secondary btn-sm px-3">
                         &larr; Return to Dashboard
                     </a>
 
-                    @if($isParent && in_array($form->target_role, ['parent', 'both']))
-                        <a href="{{ route('parent.forms.show', $form) }}{{ $submission->teen_id ? '?teen_id=' . $submission->teen_id : '' }}" class="btn btn-camp-red btn-sm px-3">
-                            <i class="bi bi-pencil-square me-1"></i> Edit Form Responses
-                        </a>
-                    @elseif(!$isParent && in_array($form->target_role, ['teen', 'both']) && $submission->status === 'returned')
-                        <a href="{{ route('teen.forms.show', $form) }}" class="btn btn-camp-red btn-sm px-3">
-                            <i class="bi bi-pencil-square me-1"></i> Revise &amp; Resubmit
-                        </a>
-                    @endif
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        {{-- Parent Actions on Pending Teen Submission --}}
+                        @if($isParent && $submission->status === 'pending_parent_review')
+                            <form action="{{ route('parent.forms.approve', $submission) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm px-3 fw-bold">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Approve &amp; Sign
+                                </button>
+                            </form>
+
+                            <button type="button" class="btn btn-outline-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#returnInspectorModal">
+                                <i class="bi bi-arrow-return-left me-1"></i> Return to Camper
+                            </button>
+
+                            {{-- Return Modal --}}
+                            <div class="modal fade" id="returnInspectorModal" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content" style="background: #141418; color: #fff; border: 1px solid rgba(255,255,255,.1);">
+                                        <form action="{{ route('parent.forms.return', $submission) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header border-secondary border-opacity-25">
+                                                <h5 class="modal-title fw-bold">Return Form to {{ $submission->teen->name }}</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p class="small text-white-50">Provide guidance or adjustments needed before you can sign off.</p>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-white">Corrections Required</label>
+                                                    <textarea class="form-control bg-dark text-white border-secondary" name="parent_feedback" rows="3" required placeholder="e.g. Please update your dietary preferences or cabin requests."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-secondary border-opacity-25">
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">Return Form</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Revision / Edit Buttons --}}
+                        @if($isParent && in_array($form->target_role, ['parent', 'both']))
+                            <a href="{{ route('parent.forms.show', $form) }}{{ $submission->teen_id ? '?teen_id=' . $submission->teen_id : '' }}" class="btn btn-camp-red btn-sm px-3">
+                                <i class="bi bi-pencil-square me-1"></i> {{ $submission->status === 'returned' ? 'Revise & Resubmit' : 'Edit Form Responses' }}
+                            </a>
+                        @elseif(!$isParent && in_array($form->target_role, ['teen', 'both']) && $submission->status === 'returned')
+                            <a href="{{ route('teen.forms.show', $form) }}" class="btn btn-camp-red btn-sm px-3">
+                                <i class="bi bi-pencil-square me-1"></i> Revise &amp; Resubmit
+                            </a>
+                        @endif
+                    </div>
                 </div>
 
             </div>

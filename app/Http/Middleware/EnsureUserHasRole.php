@@ -15,10 +15,12 @@ class EnsureUserHasRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $user = Auth::guard('staff')->user() ?? Auth::guard('web')->user();
+        $user = $request->is('backoffice*')
+            ? (Auth::guard('staff')->user() ?? Auth::guard('web')->user())
+            : (Auth::guard('web')->user() ?? Auth::guard('staff')->user());
 
         if (!$user) {
-            return redirect()->route('login');
+            return redirect()->route($request->is('backoffice*') ? 'backoffice.login' : 'login');
         }
 
         if (empty($roles)) {

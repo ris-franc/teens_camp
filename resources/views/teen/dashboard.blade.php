@@ -290,10 +290,19 @@
                                     </div>
                                 @endif
 
-                                @if($sub && $sub->status === 'returned' && $sub->parent_feedback)
-                                    <div class="alert alert-danger py-2 px-3 small my-2 border-0" style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5;">
-                                        <strong>Parent Feedback:</strong> {{ $sub->parent_feedback }}
-                                    </div>
+                                @if($sub && $sub->status === 'returned')
+                                    @if($sub->admin_feedback)
+                                        <div class="alert alert-danger py-2 px-3 small my-2 border-0" style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5;">
+                                            <strong class="d-block text-white mb-1"><i class="bi bi-exclamation-octagon-fill me-1"></i> Camp Admin Feedback:</strong>
+                                            {{ $sub->admin_feedback }}
+                                        </div>
+                                    @endif
+                                    @if($sub->parent_feedback)
+                                        <div class="alert alert-warning py-2 px-3 small my-2 border-0" style="background: rgba(234, 179, 8, 0.15); color: #FDE047;">
+                                            <strong class="d-block text-white mb-1"><i class="bi bi-chat-quote-fill me-1"></i> Parent Feedback:</strong>
+                                            {{ $sub->parent_feedback }}
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
 

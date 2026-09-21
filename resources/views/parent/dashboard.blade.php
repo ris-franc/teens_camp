@@ -236,10 +236,10 @@
                         <i class="bi bi-card-checklist"></i>
                     </div>
                 </div>
-                <div class="fs-3 fw-black {{ $pendingFormReviews->count() > 0 ? 'text-warning' : 'text-white' }}">
-                    {{ $pendingFormReviews->count() }}
+                <div class="fs-3 fw-black {{ ($pendingFormReviews->count() + $adminReturnedSubmissions->count()) > 0 ? 'text-warning' : 'text-white' }}">
+                    {{ $pendingFormReviews->count() + $adminReturnedSubmissions->count() }}
                 </div>
-                <div class="small text-muted mt-1">{{ $pendingFormReviews->count() > 0 ? 'Forms awaiting review' : 'All forms up to date' }}</div>
+                <div class="small text-muted mt-1">{{ ($pendingFormReviews->count() + $adminReturnedSubmissions->count()) > 0 ? ($adminReturnedSubmissions->count() > 0 ? 'Revisions & sign-offs needed' : 'Forms awaiting review') : 'All forms up to date' }}</div>
             </div>
         </div>
     </div>
@@ -332,6 +332,61 @@
                 </span>
             </div>
         </div>
+
+        {{-- 0. Action Required: Forms Returned by Camp Administration for Revision --}}
+        @if($adminReturnedSubmissions->count() > 0)
+            <div class="p-3 mb-4 rounded border border-danger" style="background: rgba(239, 68, 68, 0.08);">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-danger text-white px-2 py-1 fw-bold">
+                        <i class="bi bi-exclamation-octagon-fill me-1"></i> Returned by Camp Administration
+                    </span>
+                    <strong class="text-white">Forms requiring corrections or additional details:</strong>
+                </div>
+
+                <div class="row g-3">
+                    @foreach($adminReturnedSubmissions as $retSub)
+                        <div class="col-md-6">
+                            <div class="panel-well h-100 d-flex flex-column justify-content-between border-danger border-opacity-50 p-3">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="fw-bold text-white mb-0">{{ $retSub->form->title }}</h6>
+                                            @if($retSub->teen)
+                                                <div class="small text-white-50">Camper: <strong class="text-danger">{{ $retSub->teen->name }}</strong></div>
+                                            @endif
+                                        </div>
+                                        <span class="badge bg-danger">Revision Needed</span>
+                                    </div>
+
+                                    @if($retSub->admin_feedback)
+                                        <div class="alert alert-danger py-2 px-3 small my-2 border-0" style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5;">
+                                            <strong class="d-block text-white mb-1"><i class="bi bi-chat-left-dots-fill me-1"></i> Instructions from Camp Admin:</strong>
+                                            {{ $retSub->admin_feedback }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-top border-secondary border-opacity-25">
+                                    <a href="{{ route('parent.forms.submission.show', $retSub) }}" class="btn btn-outline-light btn-sm flex-fill">
+                                        <i class="bi bi-eye me-1"></i> Review
+                                    </a>
+
+                                    @if(in_array($retSub->form->target_role, ['parent', 'both']))
+                                        <a href="{{ route('parent.forms.show', $retSub->form) }}{{ $retSub->teen_id ? '?teen_id=' . $retSub->teen_id : '' }}" class="btn btn-camp-red btn-sm flex-fill fw-bold">
+                                            <i class="bi bi-pencil-square me-1"></i> Revise &amp; Resubmit
+                                        </a>
+                                    @else
+                                        <span class="badge bg-dark border border-secondary text-white-50 py-2 px-3 align-self-center">
+                                            Assigned to Camper
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         {{-- 1. Action Required: Camper Forms Awaiting Parent Sign-off --}}
         @if($pendingFormReviews->count() > 0)
@@ -430,9 +485,19 @@
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <h6 class="fw-bold text-white mb-0">{{ $pForm->title }}</h6>
                                         @if($sub)
-                                            <span class="badge bg-success py-1 px-2" style="font-size: 11px;">
-                                                <i class="bi bi-check-circle-fill me-1"></i> Completed
-                                            </span>
+                                            @if($sub->status === 'submitted')
+                                                <span class="badge bg-success py-1 px-2" style="font-size: 11px;">
+                                                    <i class="bi bi-check-circle-fill me-1"></i> Completed
+                                                </span>
+                                            @elseif($sub->status === 'returned')
+                                                <span class="badge bg-danger py-1 px-2" style="font-size: 11px;">
+                                                    <i class="bi bi-arrow-repeat me-1"></i> Returned for Revision
+                                                </span>
+                                            @else
+                                                <span class="badge bg-warning text-dark py-1 px-2" style="font-size: 11px;">
+                                                    Pending Review
+                                                </span>
+                                            @endif
                                         @else
                                             <span class="badge bg-danger py-1 px-2" style="font-size: 11px;">
                                                 Action Required
@@ -441,6 +506,13 @@
                                     </div>
                                     <p class="text-white-50 small mb-2">{{ $pForm->description ?: 'Mandatory consent & survey for camp participation.' }}</p>
                                     
+                                    @if($sub && $sub->status === 'returned' && $sub->admin_feedback)
+                                        <div class="alert alert-danger py-2 px-3 small my-2 border-0" style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5;">
+                                            <strong class="d-block text-white mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Admin Feedback:</strong>
+                                            {{ $sub->admin_feedback }}
+                                        </div>
+                                    @endif
+
                                     <div class="d-flex align-items-center gap-2 small text-white-50 mb-2">
                                         <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">
                                             {{ $pForm->fields->count() }} Questions
@@ -455,6 +527,13 @@
                                     @if(!$sub)
                                         <a href="{{ route('parent.forms.show', $pForm) }}" class="btn btn-camp-red btn-sm w-100 fw-bold py-2">
                                             <i class="bi bi-pencil-square me-1"></i> Fill Form Now
+                                        </a>
+                                    @elseif($sub->status === 'returned')
+                                        <a href="{{ route('parent.forms.show', $pForm) }}" class="btn btn-camp-red btn-sm flex-fill fw-bold py-1">
+                                            <i class="bi bi-pencil-square me-1"></i> Revise &amp; Resubmit
+                                        </a>
+                                        <a href="{{ route('parent.forms.submission.show', $sub) }}" class="btn btn-outline-secondary btn-sm flex-fill py-1">
+                                            <i class="bi bi-eye-fill me-1"></i> View Answers
                                         </a>
                                     @else
                                         <a href="{{ route('parent.forms.submission.show', $sub) }}" class="btn btn-outline-danger btn-sm flex-fill py-1">

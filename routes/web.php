@@ -202,6 +202,7 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
                 Route::get('/create', [FormBuilderController::class, 'create'])->name('create');
                 Route::post('/', [FormBuilderController::class, 'store'])->name('store');
                 Route::get('/{form}', [FormBuilderController::class, 'show'])->name('show');
+                Route::post('/submissions/{submission}/return', [FormBuilderController::class, 'returnSubmission'])->name('submissions.return');
             });
 
             // Packing Lists (Registration & Admin)

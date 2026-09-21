@@ -80,6 +80,7 @@ class ParentDashboardController extends Controller
         $parentForms = collect();
         $parentSubmissions = collect();
         $completedFamilySubmissions = collect();
+        $adminReturnedSubmissions = collect();
         if ($season) {
             $parentForms = Form::where('camp_season_id', $season->id)
                 ->where('is_published', true)
@@ -89,7 +90,7 @@ class ParentDashboardController extends Controller
 
             $parentSubmissions = FormSubmission::where('camp_season_id', $season->id)
                 ->where('user_id', $parent->id)
-                ->with(['values.field', 'form', 'teen'])
+                ->with(['values.field', 'form', 'teen', 'returnedByStaff'])
                 ->get()
                 ->keyBy('form_id');
 
@@ -99,8 +100,21 @@ class ParentDashboardController extends Controller
                     $q->where('user_id', $parent->id)
                       ->orWhereIn('teen_id', $teens->pluck('id'));
                 })
-                ->with(['form', 'teen', 'user', 'values.field', 'reviewedByParent'])
+                ->with(['form', 'teen', 'user', 'values.field', 'reviewedByParent', 'returnedByStaff'])
                 ->latest('submitted_at')
+                ->get();
+
+            $adminReturnedSubmissions = FormSubmission::where('camp_season_id', $season->id)
+                ->where('status', 'returned')
+                ->where(function ($q) use ($parent, $teens) {
+                    $q->where('user_id', $parent->id)
+                      ->orWhere(function ($q2) use ($teens) {
+                          $q2->whereIn('teen_id', $teens->pluck('id'))
+                             ->whereIn('returned_to_role', ['parent', 'both']);
+                      });
+                })
+                ->with(['form', 'teen', 'user', 'values.field', 'returnedByStaff'])
+                ->latest('returned_at')
                 ->get();
         }
 
@@ -142,6 +156,7 @@ class ParentDashboardController extends Controller
             'selectedChildId' => $selectedChildId,
             'activeRegistrations' => $activeRegistrations,
             'pendingFormReviews' => $pendingFormReviews,
+            'adminReturnedSubmissions' => $adminReturnedSubmissions,
             'adoptRequests' => $adoptRequests,
             'packingList' => $packingList,
             'parentForms' => $parentForms,
@@ -255,8 +270,10 @@ class ParentDashboardController extends Controller
         ]);
 
         $submission->status = 'returned';
+        $submission->returned_to_role = 'teen';
         $submission->reviewed_by_parent_id = $parent->id;
         $submission->reviewed_at = now();
+        $submission->returned_at = now();
         $submission->parent_feedback = $request->parent_feedback;
         $submission->save();
 
@@ -339,6 +356,8 @@ class ParentDashboardController extends Controller
             'teen_id' => $teenId,
         ]);
 
+        $wasReturned = ($submission->status === 'returned');
+
         $submission->status = 'submitted';
         $submission->submitted_at = now();
         $submission->save();
@@ -368,24 +387,43 @@ class ParentDashboardController extends Controller
 
         $teen = $teenId ? User::find($teenId) : null;
 
-        Notification::notifyStaff(
-            "Parent Form Submitted",
-            "{$parent->name} submitted '{$form->title}'" . ($teen ? " for {$teen->name}." : "."),
-            'form',
-            route('backoffice.forms.show', $form->id),
-            'bi-file-earmark-check-fill text-success'
-        );
+        if ($wasReturned) {
+            Notification::notifyStaff(
+                "Parent Form Revised & Resubmitted",
+                "{$parent->name} has revised and resubmitted '{$form->title}'" . ($teen ? " for {$teen->name}." : "."),
+                'form',
+                route('backoffice.forms.show', $form->id),
+                'bi-file-earmark-check-fill text-success'
+            );
 
-        Notification::notifyUser(
-            $parent->id,
-            "Form Submitted Successfully",
-            "Your responses for '{$form->title}' have been submitted to Camp Administration.",
-            'form',
-            route('parent.dashboard'),
-            'bi-check2-circle text-success'
-        );
+            Notification::notifyUser(
+                $parent->id,
+                "Form Resubmitted Successfully",
+                "Your revised responses for '{$form->title}' have been submitted to Camp Administration.",
+                'form',
+                route('parent.dashboard'),
+                'bi-check2-circle text-success'
+            );
+        } else {
+            Notification::notifyStaff(
+                "Parent Form Submitted",
+                "{$parent->name} submitted '{$form->title}'" . ($teen ? " for {$teen->name}." : "."),
+                'form',
+                route('backoffice.forms.show', $form->id),
+                'bi-file-earmark-check-fill text-success'
+            );
 
-        return redirect()->route('parent.dashboard')->with('success', "Form '{$form->title}' submitted successfully!");
+            Notification::notifyUser(
+                $parent->id,
+                "Form Submitted Successfully",
+                "Your responses for '{$form->title}' have been submitted to Camp Administration.",
+                'form',
+                route('parent.dashboard'),
+                'bi-check2-circle text-success'
+            );
+        }
+
+        return redirect()->route('parent.dashboard')->with('success', "Form '{$form->title}' " . ($wasReturned ? 'revised and resubmitted' : 'submitted') . " successfully!");
     }
 
     /**

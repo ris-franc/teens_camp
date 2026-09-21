@@ -123,6 +123,8 @@ class TeenDashboardController extends Controller
             'teen_id' => $user->id,
         ]);
 
+        $wasReturned = ($submission->status === 'returned');
+
         // If form requires parent approval, move to pending_parent_review
         if ($form->requires_parent_approval) {
             $submission->status = 'pending_parent_review';
@@ -162,8 +164,10 @@ class TeenDashboardController extends Controller
             foreach ($parents as $p) {
                 Notification::notifyUser(
                     $p->id,
-                    "Action Required: Child Form Review",
-                    "{$user->name} filled out '{$form->title}'. Please review and approve this form.",
+                    $wasReturned ? "Action Required: Revised Camper Form Review" : "Action Required: Child Form Review",
+                    $wasReturned 
+                        ? "{$user->name} has revised and resubmitted '{$form->title}'. Please review and approve."
+                        : "{$user->name} filled out '{$form->title}'. Please review and approve this form.",
                     'form',
                     route('parent.dashboard'),
                     'bi-file-earmark-arrow-up-fill text-warning'
@@ -173,20 +177,26 @@ class TeenDashboardController extends Controller
             Notification::notifyUser(
                 $user->id,
                 "Form Awaiting Parent Sign-off",
-                "You completed '{$form->title}'. It was sent to your parent for approval.",
+                $wasReturned 
+                    ? "You revised and resubmitted '{$form->title}'. It was sent to your parent for approval."
+                    : "You completed '{$form->title}'. It was sent to your parent for approval.",
                 'form',
                 route('teen.dashboard'),
                 'bi-clock-history text-info'
             );
 
-            $msg = 'Form filled! It has been routed to your parent for review and sign-off.';
+            $msg = $wasReturned 
+                ? 'Form revised! It has been routed back to your parent for review and sign-off.'
+                : 'Form filled! It has been routed to your parent for review and sign-off.';
         } else {
             // Direct submission
             Notification::notifyStaff(
-                "New Form Submission",
-                "{$user->name} submitted '{$form->title}'.",
+                $wasReturned ? "Camper Revised Form Submission" : "New Form Submission",
+                $wasReturned 
+                    ? "{$user->name} has revised and resubmitted '{$form->title}'."
+                    : "{$user->name} submitted '{$form->title}'.",
                 'form',
-                route('backoffice.admin.dashboard'),
+                route('backoffice.forms.show', $form->id),
                 'bi-file-earmark-check-fill text-success'
             );
 
@@ -199,7 +209,7 @@ class TeenDashboardController extends Controller
                 'bi-check2-circle text-success'
             );
 
-            $msg = 'Form submitted successfully!';
+            $msg = $wasReturned ? 'Form revised and submitted successfully!' : 'Form submitted successfully!';
         }
 
         return redirect()->route('teen.dashboard')->with('success', $msg);

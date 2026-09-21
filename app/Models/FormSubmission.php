@@ -18,8 +18,12 @@ class FormSubmission extends Model
         'teen_id',
         'status',
         'parent_feedback',
+        'admin_feedback',
+        'returned_to_role',
+        'returned_by_staff_id',
         'reviewed_by_parent_id',
         'reviewed_at',
+        'returned_at',
         'submitted_at',
     ];
 
@@ -27,6 +31,7 @@ class FormSubmission extends Model
     {
         return [
             'reviewed_at' => 'datetime',
+            'returned_at' => 'datetime',
             'submitted_at' => 'datetime',
         ];
     }
@@ -59,5 +64,10 @@ class FormSubmission extends Model
     public function reviewedByParent(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by_parent_id');
+    }
+
+    public function returnedByStaff(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'returned_by_staff_id');
     }
 }

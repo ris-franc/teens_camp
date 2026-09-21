@@ -29,8 +29,14 @@
 
                 @if($submission && $submission->status === 'returned')
                     <div class="alert alert-danger mb-4 border-0 p-3 rounded" style="background: rgba(239, 68, 68, 0.15); color: #FCA5A5;">
-                        <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-octagon-fill me-1"></i> Form Returned with Feedback</h6>
-                        <p class="mb-0 small">{{ $submission->parent_feedback }}</p>
+                        <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-octagon-fill me-1"></i> Form Returned for Revision</h6>
+                        @if($submission->admin_feedback)
+                            <div class="small text-white mb-1"><strong>Camp Admin Feedback:</strong> {{ $submission->admin_feedback }}</div>
+                        @endif
+                        @if($submission->parent_feedback)
+                            <div class="small text-white"><strong>Feedback:</strong> {{ $submission->parent_feedback }}</div>
+                        @endif
+                        <div class="small text-white-50 mt-1">Please review the instructions above, update your answers, and resubmit.</div>
                     </div>
                 @endif
 
