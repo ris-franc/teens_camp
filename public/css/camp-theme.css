@@ -999,5 +999,45 @@ h1, h2, h3, h4, .camp-logo-font, .navbar-brand, .landing-title, .section-title {
     .btn {
         min-height: 40px;
     }
+
+    /* Executive Admin Mobile Actions Grid */
+    .admin-mobile-action-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    @media (min-width: 460px) and (max-width: 767.98px) {
+        .admin-mobile-action-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    .admin-mobile-action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 10px 6px;
+        min-height: 60px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        text-align: center;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+        color: #FFFFFF;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        line-height: 1.15;
+    }
+    .admin-mobile-action-btn:active, .admin-mobile-action-btn:hover {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #FFFFFF;
+    }
+    .admin-mobile-action-btn i {
+        font-size: 1.25rem;
+    }
 }
+
 

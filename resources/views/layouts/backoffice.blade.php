@@ -23,29 +23,40 @@
 <body>
     <!-- Unified Executive Backoffice Navbar -->
     <header class="camp-topbar py-2 sticky-top shadow-sm" style="overflow: visible !important; z-index: 1030;">
-        <div class="container-fluid px-2 px-md-3 d-flex align-items-center justify-content-between gap-2 gap-md-3">
-            <!-- Brand & Security Guard Badge -->
-            <div class="d-flex align-items-center gap-2">
+        <div class="container-fluid px-2 px-md-3 d-flex align-items-center justify-content-between gap-2 flex-nowrap">
+            <!-- Left: Brand & Mobile Sidebar Toggle -->
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                @auth('staff')
+                    <button class="btn btn-outline-secondary btn-sm border-secondary text-white p-0 d-md-none rounded-2" 
+                            type="button" 
+                            data-bs-toggle="offcanvas" 
+                            data-bs-target="#backofficeMobileDrawer" 
+                            aria-controls="backofficeMobileDrawer" 
+                            title="Toggle Navigation Menu"
+                            style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                @endauth
                 <a class="d-flex align-items-center gap-2 text-decoration-none text-white fw-bold fs-5" href="{{ route('backoffice.admin.dashboard') }}">
-                    <img src="{{ asset('images/church-logo.jpg') }}" alt="Church 40th Anniversary" class="rounded bg-white p-1" style="height: 36px; width: auto; object-fit: contain; box-shadow: 0 0 10px rgba(220,53,69,0.35);">
+                    <img src="{{ asset('images/church-logo.jpg') }}" alt="Church Logo" class="rounded bg-white p-1" style="height: 32px; width: auto; object-fit: contain; box-shadow: 0 0 10px rgba(220,53,69,0.35);">
                     <span class="tracking-wide">CAMP</span>
                 </a>
-                <span class="badge bg-dark border border-secondary text-white text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                <span class="badge bg-dark border border-secondary text-white text-uppercase d-none d-sm-inline" style="font-size: 0.72rem; letter-spacing: 0.5px;">
                     Staff Portal
                 </span>
                 @if($currentSeason)
-                    <span class="badge bg-danger d-none d-sm-inline">{{ $currentSeason->name }}</span>
+                    <span class="badge bg-danger d-none d-lg-inline">{{ $currentSeason->name }}</span>
                 @endif
             </div>
 
-            <!-- Center: Season Switcher & Live Countdown HUD -->
-            <div class="d-flex align-items-center gap-2">
+            <!-- Right Controls: Season Switcher, Live Countdown, Notifications, Theme, Profile -->
+            <div class="d-flex align-items-center gap-1 gap-sm-2 flex-nowrap ms-auto">
                 @if(isset($allSeasons) && $allSeasons->count() > 0)
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-dark dropdown-toggle text-white border border-secondary py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-sm btn-dark dropdown-toggle text-white border border-secondary py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 12px;">
                             <i class="bi bi-calendar3 me-1 text-danger"></i> <strong>{{ $currentSeason ? $currentSeason->year : 'Season' }}</strong>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-start shadow-lg border border-secondary" style="z-index: 1060;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border border-secondary" style="z-index: 1060;">
                             <li><h6 class="dropdown-header">Switch Season View</h6></li>
                             @foreach($allSeasons as $s)
                                 <li>
@@ -69,7 +80,7 @@
                 @endif
 
                 @if($currentSeason)
-                    <div class="countdown-box d-none d-lg-inline-flex py-1 px-2" id="camp-countdown" title="Days until {{ $currentSeason->name }}">
+                    <div class="countdown-box d-none d-xl-inline-flex py-1 px-2" id="camp-countdown" title="Days until {{ $currentSeason->name }}">
                         <div class="countdown-unit">
                             <span class="countdown-val" id="camp-cd-days" style="font-size: 0.95rem;">00</span>
                             <span class="countdown-label">D</span>
@@ -91,10 +102,7 @@
                         </div>
                     </div>
                 @endif
-            </div>
 
-            <!-- Right Controls: Notification Bar, Theme Toggle & User Profile -->
-            <div class="d-flex align-items-center gap-2">
                 @auth('staff')
                     @php 
                         $staff = Auth::guard('staff')->user(); 
@@ -106,7 +114,7 @@
                     <div class="dropdown" id="camp-notifications-dropdown">
                         <button class="btn btn-outline-secondary btn-sm rounded-circle position-relative border-secondary text-white p-0 dropdown-toggle no-caret" 
                                 type="button" id="campNotifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" 
-                                title="System Activity & Notifications" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">
+                                title="System Activity & Notifications" style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
                             <i class="bi bi-bell-fill"></i>
                             @if($unreadNotifsCount > 0)
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark" id="nav-notif-count" style="font-size: 10px;">
@@ -114,7 +122,7 @@
                                 </span>
                             @endif
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border border-danger-subtle bg-dark" style="width: 360px; max-width: 90vw; z-index: 1060;">
+                        <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border border-danger-subtle bg-dark" style="width: 360px; max-width: 92vw; z-index: 1060;">
                             <div class="p-3 border-bottom border-secondary d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-bell-fill text-danger"></i>
@@ -168,32 +176,40 @@
                             </div>
                         </div>
                     </div>
-                @endauth
 
-                <!-- Theme Toggle Button -->
-                <button class="btn btn-outline-secondary btn-sm theme-toggle-btn rounded-circle p-1" onclick="window.toggleCampTheme()" title="Toggle Dark/Light Mode" style="width: 32px; height: 32px;">
-                    <i class="bi bi-moon-stars-fill"></i>
-                </button>
+                    <!-- Theme Toggle Button (Tablet/Desktop) -->
+                    <button class="btn btn-outline-secondary btn-sm theme-toggle-btn rounded-circle p-1 d-none d-sm-inline-flex" onclick="window.toggleCampTheme()" title="Toggle Dark/Light Mode" style="width: 34px; height: 34px; align-items: center; justify-content: center;">
+                        <i class="bi bi-moon-stars-fill"></i>
+                    </button>
 
-                @auth('staff')
+                    <!-- Staff Profile Dropdown -->
                     <div class="dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white text-decoration-none" href="#" id="staffProfileDropdownBtn" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                             @if($staff->avatar)
-                                <img src="{{ asset('storage/' . $staff->avatar) }}" class="rounded-circle border border-danger" width="30" height="30" alt="Avatar">
+                                <img src="{{ asset('storage/' . $staff->avatar) }}" class="rounded-circle border border-danger" width="32" height="32" alt="Avatar">
                             @else
-                                <span class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width: 30px; height: 30px; font-size: 12px;">
+                                <span class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 13px;">
                                     {{ strtoupper(substr($staff->name, 0, 1)) }}
                                 </span>
                             @endif
-                            <div class="text-start d-none d-lg-block">
+                            <div class="text-start d-none d-xl-block">
                                 <div class="fw-bold lh-1 text-white small">{{ $staff->name }}</div>
                                 <small class="badge bg-secondary text-uppercase" style="font-size: 9px;">{{ str_replace('_', ' ', $staff->role) }}</small>
                             </div>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border border-secondary" style="z-index: 1060;">
+                            <li class="px-3 py-2 border-bottom border-secondary d-xl-none">
+                                <div class="fw-bold text-white small">{{ $staff->name }}</div>
+                                <small class="text-white-50 text-uppercase" style="font-size: 10px;">{{ str_replace('_', ' ', $staff->role) }}</small>
+                            </li>
                             <li>
                                 <a class="dropdown-item" href="{{ route('backoffice.profile') }}">
-                                    <i class="bi bi-person-gear me-2 text-danger"></i> Profile & PIN
+                                    <i class="bi bi-person-gear me-2 text-danger"></i> Profile &amp; PIN
+                                </a>
+                            </li>
+                            <li class="d-sm-none">
+                                <a class="dropdown-item" href="#" onclick="window.toggleCampTheme(); return false;">
+                                    <i class="bi bi-moon-stars-fill me-2 text-warning"></i> Toggle Theme
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
@@ -209,11 +225,123 @@
         </div>
     </header>
 
+    @auth('staff')
+        @php 
+            $staff = Auth::guard('staff')->user(); 
+            $sidebarSeasonId = session('admin_selected_season_id') ?? \App\Models\CampSeason::getActive()?->id;
+            $sidebarPendingAid = $sidebarSeasonId ? \App\Models\AdoptATeenRequest::where('camp_season_id', $sidebarSeasonId)->where('status', 'pending')->count() : 0;
+        @endphp
+
+        <!-- ══════════════════════════════════════════════════════════
+             MOBILE OFFCANVAS SIDEBAR DRAWER (< 768px)
+        ══════════════════════════════════════════════════════════ -->
+        <div class="offcanvas offcanvas-start bg-dark text-white border-end border-secondary d-md-none" 
+             tabindex="-1" 
+             id="backofficeMobileDrawer" 
+             aria-labelledby="backofficeMobileDrawerLabel"
+             style="width: 300px; max-width: 85vw; background: #121216 !important; z-index: 1055;">
+            
+            <div class="offcanvas-header border-bottom border-secondary border-opacity-30 py-3 px-3">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="{{ asset('images/church-logo.jpg') }}" alt="Logo" class="rounded bg-white p-1" style="height: 32px; width: auto; object-fit: contain;">
+                    <div>
+                        <h6 class="modal-title fw-bold text-white mb-0" id="backofficeMobileDrawerLabel">TEEN CAMP</h6>
+                        <small class="badge bg-danger text-uppercase" style="font-size: 9px;">Staff Control Panel</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <div class="offcanvas-body p-3 overflow-y-auto">
+                <!-- User Profile Card in Drawer -->
+                <div class="p-3 mb-3 rounded d-flex align-items-center justify-content-between" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 14px;">
+                            {{ strtoupper(substr($staff->name, 0, 1)) }}
+                        </span>
+                        <div>
+                            <div class="fw-bold text-white small text-truncate" style="max-width: 130px;">{{ $staff->name }}</div>
+                            <span class="badge bg-secondary text-uppercase" style="font-size: 9px;">{{ str_replace('_', ' ', $staff->role) }}</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm rounded-circle p-1" onclick="window.toggleCampTheme()" title="Toggle Theme" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-moon-stars-fill"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation Tree -->
+                <div class="nav flex-column gap-1">
+                    @if($staff->isAdmin())
+                        <div class="small text-uppercase text-muted fw-bold px-2 mt-1 mb-1" style="font-size: 11px; letter-spacing: .5px;">Administration</div>
+                        <a href="{{ route('backoffice.admin.dashboard') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.admin.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-grid-1x2-fill text-danger"></i> Admin Overview
+                        </a>
+                        <a href="{{ route('backoffice.admin.database') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.admin.database') ? 'active' : '' }}">
+                            <i class="bi bi-search text-info"></i> Database Search
+                        </a>
+                        <a href="{{ route('backoffice.admin.seasons') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.admin.seasons') ? 'active' : '' }}">
+                            <i class="bi bi-calendar-event text-warning"></i> Camp Seasons
+                        </a>
+                        <a href="{{ route('backoffice.admin.users') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.admin.users') ? 'active' : '' }}">
+                            <i class="bi bi-people-fill text-success"></i> Users &amp; PINs
+                        </a>
+                    @endif
+
+                    @if($staff->isPastor() || $staff->isAdmin())
+                        <div class="small text-uppercase text-muted fw-bold px-2 mt-3 mb-1" style="font-size: 11px; letter-spacing: .5px;">Pastoral &amp; Aid</div>
+                        <a href="{{ route('backoffice.pastor.dashboard') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.pastor.*') ? 'active' : '' }}">
+                            <i class="bi bi-shield-shaded text-primary"></i> Pastor Portal
+                        </a>
+                        <a href="{{ route('backoffice.adopt.index') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.adopt.*') ? 'active' : '' }}">
+                            <i class="bi bi-heart-pulse-fill text-danger"></i> Adopt-a-Teen Aid
+                            @if($sidebarPendingAid > 0)
+                                <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 10px;">{{ $sidebarPendingAid }}</span>
+                            @endif
+                        </a>
+                    @endif
+
+                    @if($staff->isRegistration() || $staff->isAdmin())
+                        <div class="small text-uppercase text-muted fw-bold px-2 mt-3 mb-1" style="font-size: 11px; letter-spacing: .5px;">Registration Desk</div>
+                        <a href="{{ route('backoffice.registration.dashboard') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.registration.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-speedometer text-info"></i> Reg Dashboard
+                        </a>
+                        <a href="{{ route('backoffice.registration.desk') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.registration.desk') ? 'active' : '' }}">
+                            <i class="bi bi-person-plus-fill text-danger"></i> Desk Intake (2-Min)
+                        </a>
+                        <a href="{{ route('backoffice.registration.signin') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.registration.signin') ? 'active' : '' }}">
+                            <i class="bi bi-check2-circle text-success"></i> Camp-Day Sign-In
+                        </a>
+                        <a href="{{ route('backoffice.forms.index') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.forms.*') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-text text-warning"></i> Form Builder &amp; Hub
+                        </a>
+                        <a href="{{ route('backoffice.packing.index') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.packing.*') ? 'active' : '' }}">
+                            <i class="bi bi-backpack text-danger"></i> Packing Lists
+                        </a>
+                    @endif
+
+                    @if($staff->isCampaign() || $staff->isCampaignHead() || $staff->isAdmin())
+                        <div class="small text-uppercase text-muted fw-bold px-2 mt-3 mb-1" style="font-size: 11px; letter-spacing: .5px;">Fundraising</div>
+                        <a href="{{ route('backoffice.campaign.dashboard') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.campaign.*') ? 'active' : '' }}">
+                            <i class="bi bi-cart4 text-success"></i> Campaign Sales &amp; POS
+                        </a>
+                    @endif
+
+                    <div class="small text-uppercase text-muted fw-bold px-2 mt-3 mb-1" style="font-size: 11px; letter-spacing: .5px;">Account &amp; Security</div>
+                    <a href="{{ route('backoffice.profile') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.profile') ? 'active' : '' }}">
+                        <i class="bi bi-person-gear text-danger"></i> Profile &amp; PIN
+                    </a>
+                    <a href="{{ route('backoffice.logout') }}" class="backoffice-nav-link rounded text-danger">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endauth
+
     <!-- Main Container with Sidebar -->
     <div class="d-flex flex-grow-1" style="min-width: 0; max-width: 100vw; overflow-x: clip;">
-        <!-- Sidebar Navigation -->
+        <!-- Desktop Sidebar Navigation (>= 768px) -->
         @auth('staff')
-            @php $staff = Auth::guard('staff')->user(); @endphp
             <aside class="backoffice-sidebar d-none d-md-block p-3 flex-shrink-0" style="width: 240px;">
                 <div class="small text-uppercase text-muted fw-bold px-3 mb-2">Navigation</div>
                 <div class="nav flex-column gap-1">
@@ -228,21 +356,17 @@
                             <i class="bi bi-calendar-event"></i> Camp Seasons
                         </a>
                         <a href="{{ route('backoffice.admin.users') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.admin.users') ? 'active' : '' }}">
-                            <i class="bi bi-people-fill"></i> Users & PINs
+                            <i class="bi bi-people-fill"></i> Users &amp; PINs
                         </a>
                     @endif
 
                     @if($staff->isPastor() || $staff->isAdmin())
-                        <div class="small text-uppercase text-muted fw-bold px-3 mt-3 mb-2">Pastoral & Aid</div>
+                        <div class="small text-uppercase text-muted fw-bold px-3 mt-3 mb-2">Pastoral &amp; Aid</div>
                         <a href="{{ route('backoffice.pastor.dashboard') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.pastor.*') ? 'active' : '' }}">
                             <i class="bi bi-shield-shaded"></i> Pastor Portal
                         </a>
                         <a href="{{ route('backoffice.adopt.index') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.adopt.*') ? 'active' : '' }}">
                             <i class="bi bi-heart-pulse-fill text-danger"></i> Adopt-a-Teen
-                            @php
-                                $sidebarSeasonId = session('admin_selected_season_id') ?? \App\Models\CampSeason::getActive()?->id;
-                                $sidebarPendingAid = $sidebarSeasonId ? \App\Models\AdoptATeenRequest::where('camp_season_id', $sidebarSeasonId)->where('status', 'pending')->count() : 0;
-                            @endphp
                             @if($sidebarPendingAid > 0)
                                 <span class="badge bg-danger rounded-pill ms-auto" style="font-size: 10px;">{{ $sidebarPendingAid }}</span>
                             @endif
@@ -271,7 +395,7 @@
                     @if($staff->isCampaign() || $staff->isCampaignHead() || $staff->isAdmin())
                         <div class="small text-uppercase text-muted fw-bold px-3 mt-3 mb-2">Fundraising</div>
                         <a href="{{ route('backoffice.campaign.dashboard') }}" class="backoffice-nav-link rounded {{ request()->routeIs('backoffice.campaign.*') ? 'active' : '' }}">
-                            <i class="bi bi-cart4"></i> Campaign Sales & POS
+                            <i class="bi bi-cart4"></i> Campaign Sales &amp; POS
                         </a>
                     @endif
 
@@ -332,6 +456,34 @@
         </main>
     </div>
 
+    <!-- ══════════════════════════════════════════════════════════
+         MOBILE BOTTOM NAVIGATION BAR FOR BACKOFFICE (< 768px)
+    ══════════════════════════════════════════════════════════ -->
+    @auth('staff')
+        <nav class="camp-mobile-bottom-bar d-md-none" aria-label="Staff Mobile Navigation">
+            <a href="{{ route('backoffice.admin.dashboard') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.admin.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Overview</span>
+            </a>
+            <a href="{{ route('backoffice.registration.desk') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.registration.desk') ? 'active' : '' }}">
+                <i class="bi bi-person-plus-fill"></i>
+                <span>Intake</span>
+            </a>
+            <a href="{{ route('backoffice.admin.database') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.admin.database') ? 'active' : '' }}">
+                <i class="bi bi-search"></i>
+                <span>Database</span>
+            </a>
+            <a href="{{ route('backoffice.forms.index') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.forms.*') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Forms</span>
+            </a>
+            <button type="button" class="mobile-nav-item bg-transparent border-0" data-bs-toggle="offcanvas" data-bs-target="#backofficeMobileDrawer" aria-controls="backofficeMobileDrawer">
+                <i class="bi bi-list fs-5"></i>
+                <span>Menu</span>
+            </button>
+        </nav>
+    @endauth
+
     <!-- Global Loading Overlay -->
     <div class="loading-overlay" id="camp-loading-overlay">
         <div class="d-flex flex-column align-items-center gap-3">
@@ -349,8 +501,6 @@
     </script>
     <!-- Local Camp JS -->
     <script src="{{ asset('js/camp-theme.js') }}"></script>
-
-
 
     @if($currentSeason)
         <script>

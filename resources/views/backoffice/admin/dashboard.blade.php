@@ -21,8 +21,8 @@
             </p>
         </div>
 
-        <!-- Command Deck Quick Actions Toolbar -->
-        <div class="d-flex flex-wrap gap-2 align-items-center">
+        <!-- Command Deck Quick Actions Toolbar (Desktop >= 768px) -->
+        <div class="d-none d-md-flex flex-wrap gap-2 align-items-center">
             <!-- Quick Camper Intake Link -->
             <a href="{{ route('backoffice.registration.desk') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
                 <i class="bi bi-person-plus-fill text-danger"></i>
@@ -117,6 +117,83 @@
                 <span>Reset DB</span>
             </button>
         </div>
+    </div>
+
+    <!-- Command Deck Quick Actions Grid (Mobile < 768px) -->
+    <div class="admin-mobile-action-grid d-md-none w-100 mb-4">
+        <!-- 1. Intake Camper -->
+        <a href="{{ route('backoffice.registration.desk') }}" class="admin-mobile-action-btn">
+            <i class="bi bi-person-plus-fill text-danger"></i>
+            <span>Intake Camper</span>
+        </a>
+
+        <!-- 2. Registration Toggle -->
+        @if($season)
+            <form action="{{ route('backoffice.admin.seasons.toggle-registration', $season->id) }}" method="POST" class="m-0 p-0 w-100">
+                @csrf
+                @if($season->isRegistrationOpen())
+                    <button type="submit" class="admin-mobile-action-btn w-100" style="background: rgba(234, 179, 8, 0.12); border-color: rgba(234, 179, 8, 0.35); color: #FACC15;">
+                        <i class="bi bi-door-closed-fill text-warning"></i>
+                        <span>Close Reg</span>
+                    </button>
+                @else
+                    <button type="submit" class="admin-mobile-action-btn w-100" style="background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.35); color: #4ADE80;">
+                        <i class="bi bi-door-open-fill text-success"></i>
+                        <span>Open Reg</span>
+                    </button>
+                @endif
+            </form>
+        @endif
+
+        <!-- 3. Add Kitty Donation -->
+        <button type="button" class="admin-mobile-action-btn" data-bs-toggle="modal" data-bs-target="#donationModal" style="background: rgba(220, 38, 38, 0.15); border-color: rgba(220, 38, 38, 0.4);">
+            <i class="bi bi-heart-fill text-danger"></i>
+            <span>Add Kitty</span>
+        </button>
+
+        <!-- 4. Adopt Portal -->
+        <a href="{{ route('backoffice.adopt.index') }}" class="admin-mobile-action-btn position-relative">
+            <i class="bi bi-heart-pulse-fill text-danger"></i>
+            <span>Adopt Portal</span>
+            @if($pendingAdoptRequests->count() > 0)
+                <span class="badge bg-danger text-white rounded-pill position-absolute top-0 end-0 m-1" style="font-size: 9px;">{{ $pendingAdoptRequests->count() }}</span>
+            @endif
+        </a>
+
+        <!-- 5. PDF Reports Dropdown -->
+        <div class="dropdown">
+            <button class="admin-mobile-action-btn w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                <span>PDF Reports <i class="bi bi-chevron-down ms-1" style="font-size: 9px;"></i></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark shadow border-secondary">
+                <li><h6 class="dropdown-header text-uppercase" style="font-size: 10px;">Download Printable PDFs</h6></li>
+                <li><a class="dropdown-item py-2" href="{{ route('backoffice.reports.registrations.pdf', ['season_id' => $season?->id]) }}" target="_blank"><i class="bi bi-people text-danger me-2"></i>Registrations Roster</a></li>
+                <li><a class="dropdown-item py-2" href="{{ route('backoffice.reports.payments.pdf', ['season_id' => $season?->id]) }}" target="_blank"><i class="bi bi-cash-stack text-success me-2"></i>Payments &amp; Receipts</a></li>
+                <li><a class="dropdown-item py-2" href="{{ route('backoffice.reports.adopt.pdf', ['season_id' => $season?->id]) }}" target="_blank"><i class="bi bi-heart-pulse text-danger me-2"></i>Adopt-a-Teen Kitty</a></li>
+                <li><a class="dropdown-item py-2" href="{{ route('backoffice.reports.sales.pdf', ['season_id' => $season?->id]) }}" target="_blank"><i class="bi bi-cart-check text-primary me-2"></i>Merchandise Sales</a></li>
+                <li><hr class="dropdown-divider border-secondary"></li>
+                <li><a class="dropdown-item py-2" href="{{ route('backoffice.reports.database.pdf') }}" target="_blank"><i class="bi bi-search text-warning me-2"></i>Database Query PDF</a></li>
+            </ul>
+        </div>
+
+        <!-- 6. M-Pesa Paybill Setup -->
+        <button type="button" class="admin-mobile-action-btn" data-bs-toggle="modal" data-bs-target="#mpesaSettingsModal">
+            <i class="bi bi-phone-fill text-success"></i>
+            <span>M-Pesa Setup</span>
+        </button>
+
+        <!-- 7. Database Search -->
+        <a href="{{ route('backoffice.admin.database') }}" class="admin-mobile-action-btn">
+            <i class="bi bi-search text-info"></i>
+            <span>Search DB</span>
+        </a>
+
+        <!-- 8. Reset Database -->
+        <button type="button" class="admin-mobile-action-btn text-danger" data-bs-toggle="modal" data-bs-target="#resetDbModal">
+            <i class="bi bi-arrow-clockwise text-danger"></i>
+            <span>Reset DB</span>
+        </button>
     </div>
 
     @if($season)
