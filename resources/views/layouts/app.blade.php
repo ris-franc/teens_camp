@@ -30,18 +30,18 @@
 <body>
     <!-- Top Bar with Countdown -->
     <div class="camp-topbar">
-        <div class="container d-flex flex-wrap align-items-center justify-content-between py-1 gap-2">
-            <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-shield-shaded"></i>
-                <span>{{ $currentSeason ? $currentSeason->name : 'Teen Camp Management' }}</span>
+        <div class="container d-flex align-items-center justify-content-between py-1 gap-2">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                <i class="bi bi-shield-shaded flex-shrink-0"></i>
+                <span class="text-truncate fw-semibold" style="font-size: 13px;">{{ $currentSeason ? $currentSeason->name : 'Teen Camp Management' }}</span>
                 @if($currentSeason && $currentSeason->theme)
-                    <span class="d-none d-md-inline opacity-75">| {{ $currentSeason->theme }}</span>
+                    <span class="d-none d-lg-inline opacity-75">| {{ $currentSeason->theme }}</span>
                 @endif
             </div>
             
             @if($currentSeason)
-                <div class="d-flex align-items-center gap-2">
-                    <span class="d-none d-sm-inline small text-uppercase fw-bold opacity-75">Starts in:</span>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto">
+                    <span class="d-none d-md-inline small text-uppercase fw-bold opacity-75">Starts in:</span>
                     <div class="countdown-box" id="camp-countdown">
                         <div class="countdown-unit">
                             <span class="countdown-val" id="camp-cd-days">00</span>
@@ -263,6 +263,106 @@
     <main class="flex-grow-1 py-4">
         @yield('content')
     </main>
+
+    <!-- App-Like Mobile Bottom Navigation Bar (< 768px) -->
+    <nav class="camp-mobile-bottom-bar d-md-none" aria-label="Mobile Navigation">
+        @auth('web')
+            @php
+                $mUser = Auth::guard('web')->user();
+                $mUnread = $webUnreadCount ?? 0;
+            @endphp
+            @if($mUser->isParent())
+                <a href="{{ route('parent.dashboard') }}" class="mobile-nav-item {{ request()->routeIs('parent.dashboard') && !request()->is('*forms*') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('parent.dashboard') }}#forms-section" class="mobile-nav-item {{ request()->is('*forms*') ? 'active' : '' }}">
+                    <i class="bi bi-card-checklist"></i>
+                    <span>Forms</span>
+                </a>
+                <a href="{{ route('notifications.index') }}" class="mobile-nav-item {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
+                    <i class="bi bi-bell-fill"></i>
+                    @if($mUnread > 0)
+                        <span class="mobile-nav-badge">{{ $mUnread > 9 ? '9+' : $mUnread }}</span>
+                    @endif
+                    <span>Alerts</span>
+                </a>
+                <a href="{{ route('public.profile') }}" class="mobile-nav-item {{ request()->routeIs('public.profile') || request()->routeIs('profile') ? 'active' : '' }}">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Profile</span>
+                </a>
+            @elseif($mUser->isTeen())
+                <a href="{{ route('teen.dashboard') }}" class="mobile-nav-item {{ request()->routeIs('teen.dashboard') && !request()->is('*forms*') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ route('teen.dashboard') }}#forms" class="mobile-nav-item {{ request()->is('*forms*') ? 'active' : '' }}">
+                    <i class="bi bi-card-checklist"></i>
+                    <span>Forms</span>
+                </a>
+                <a href="{{ route('packing-list.pdf') }}" target="_blank" class="mobile-nav-item">
+                    <i class="bi bi-backpack-fill"></i>
+                    <span>Packing</span>
+                </a>
+                <a href="{{ route('notifications.index') }}" class="mobile-nav-item {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
+                    <i class="bi bi-bell-fill"></i>
+                    @if($mUnread > 0)
+                        <span class="mobile-nav-badge">{{ $mUnread > 9 ? '9+' : $mUnread }}</span>
+                    @endif
+                    <span>Alerts</span>
+                </a>
+                <a href="{{ route('public.profile') }}" class="mobile-nav-item {{ request()->routeIs('public.profile') || request()->routeIs('profile') ? 'active' : '' }}">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Profile</span>
+                </a>
+            @endif
+        @elseauth('staff')
+            @php
+                $sUser = Auth::guard('staff')->user();
+                $sUnread = $staffUnreadCount ?? 0;
+            @endphp
+            <a href="{{ route('backoffice.admin.dashboard') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.admin.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-speedometer2"></i>
+                <span>Admin</span>
+            </a>
+            <a href="{{ route('backoffice.registration.desk') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.registration.*') ? 'active' : '' }}">
+                <i class="bi bi-person-plus-fill"></i>
+                <span>Reg Desk</span>
+            </a>
+            <a href="{{ route('backoffice.adopt.index') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.adopt.*') ? 'active' : '' }}">
+                <i class="bi bi-heart-pulse-fill"></i>
+                <span>Adopt</span>
+            </a>
+            <a href="{{ route('backoffice.notifications.index') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.notifications.*') ? 'active' : '' }}">
+                <i class="bi bi-bell-fill"></i>
+                @if($sUnread > 0)
+                    <span class="mobile-nav-badge">{{ $sUnread > 9 ? '9+' : $sUnread }}</span>
+                @endif
+                <span>Alerts</span>
+            </a>
+            <a href="{{ route('backoffice.profile') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.profile') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i>
+                <span>Profile</span>
+            </a>
+        @else
+            <a href="{{ route('landing') }}" class="mobile-nav-item {{ request()->routeIs('landing') ? 'active' : '' }}">
+                <i class="bi bi-house-door-fill"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ route('public.register') }}" class="mobile-nav-item {{ request()->routeIs('public.register') ? 'active' : '' }}">
+                <i class="bi bi-stopwatch-fill"></i>
+                <span>Register</span>
+            </a>
+            <a href="{{ route('login') }}" class="mobile-nav-item {{ request()->routeIs('login') ? 'active' : '' }}">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Sign In</span>
+            </a>
+            <a href="{{ route('backoffice.login') }}" class="mobile-nav-item {{ request()->routeIs('backoffice.login') ? 'active' : '' }}">
+                <i class="bi bi-shield-lock-fill"></i>
+                <span>Staff</span>
+            </a>
+        @endauth
+    </nav>
 
     <!-- Footer -->
     <footer class="py-4 border-top mt-auto" style="background-color: var(--camp-surface); border-color: var(--camp-border) !important;">

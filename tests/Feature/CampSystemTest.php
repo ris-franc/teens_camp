@@ -8,6 +8,7 @@ use App\Models\CampaignProduct;
 use App\Models\CampaignWeeklyBatch;
 use App\Models\CampSeason;
 use App\Models\Form;
+use App\Models\FormField;
 use App\Models\FormSubmission;
 use App\Models\Notification;
 use App\Models\PackingList;
@@ -1194,6 +1195,106 @@ class CampSystemTest extends TestCase
         if (file_exists(public_path($season->poster_path))) {
             @unlink(public_path($season->poster_path));
         }
+    }
+
+    public function test_parent_can_view_and_submit_assigned_form_and_view_responses(): void
+    {
+        $season = CampSeason::getActive();
+        $parent = User::where('email', 'parent@church.org')->first();
+        $teen = $parent->teens->first();
+
+        // 1. Create a form assigned to parent
+        $form = Form::create([
+            'camp_season_id' => $season->id,
+            'title' => 'Parent Medical Consent & Release',
+            'description' => 'Required consent form for all parents.',
+            'target_role' => 'parent',
+            'requires_parent_approval' => false,
+            'is_published' => true,
+        ]);
+
+        $field = FormField::create([
+            'form_id' => $form->id,
+            'label' => 'Emergency Hospital Preference',
+            'field_type' => 'text',
+            'is_required' => true,
+            'order_index' => 1,
+        ]);
+
+        // 2. Parent dashboard renders the assigned form
+        $dashResponse = $this->actingAs($parent, 'web')->get('/parent/dashboard');
+        $dashResponse->assertStatus(200);
+        $dashResponse->assertSee('Parent Medical Consent & Release');
+        $dashResponse->assertSee('Fill Form Now');
+
+        // 3. Parent opens form
+        $formResponse = $this->actingAs($parent, 'web')->get("/parent/forms/{$form->id}");
+        $formResponse->assertStatus(200);
+        $formResponse->assertSee('Emergency Hospital Preference');
+
+        // 4. Parent submits form
+        $submitResponse = $this->actingAs($parent, 'web')->post("/parent/forms/{$form->id}/submit", [
+            'teen_id' => $teen->id,
+            "field_{$field->id}" => 'Nairobi Hospital Outpatient Clinic',
+        ]);
+        $submitResponse->assertRedirect(route('parent.dashboard'));
+        $submitResponse->assertSessionHas('success');
+
+        // 5. Verify submission recorded in database
+        $this->assertDatabaseHas('form_submissions', [
+            'form_id' => $form->id,
+            'user_id' => $parent->id,
+            'status' => 'submitted',
+        ]);
+
+        $submission = FormSubmission::where('form_id', $form->id)->where('user_id', $parent->id)->first();
+        $this->assertNotNull($submission);
+
+        // 6. Parent can view submitted responses
+        $viewResponse = $this->actingAs($parent, 'web')->get("/parent/forms/submissions/{$submission->id}");
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('Nairobi Hospital Outpatient Clinic');
+    }
+
+    public function test_teen_can_view_submitted_form_responses(): void
+    {
+        $season = CampSeason::getActive();
+        $teen = User::where('email', 'teen@church.org')->first();
+
+        $form = Form::create([
+            'camp_season_id' => $season->id,
+            'title' => 'Teen Cabin Request Form',
+            'description' => 'Cabin mate preferences.',
+            'target_role' => 'teen',
+            'requires_parent_approval' => false,
+            'is_published' => true,
+        ]);
+
+        $field = FormField::create([
+            'form_id' => $form->id,
+            'label' => 'Preferred Cabin Mate',
+            'field_type' => 'text',
+            'is_required' => true,
+            'order_index' => 1,
+        ]);
+
+        // Submit form as teen
+        $this->actingAs($teen, 'web')->post("/teen/forms/{$form->id}/submit", [
+            "field_{$field->id}" => 'Lucas Baraka',
+        ]);
+
+        $submission = FormSubmission::where('form_id', $form->id)->where('user_id', $teen->id)->first();
+        $this->assertNotNull($submission);
+
+        // Teen dashboard has link to view responses
+        $dashResponse = $this->actingAs($teen, 'web')->get('/teen/dashboard');
+        $dashResponse->assertStatus(200);
+        $dashResponse->assertSee('View My Responses');
+
+        // Teen views submission
+        $viewResponse = $this->actingAs($teen, 'web')->get("/teen/forms/submissions/{$submission->id}");
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('Lucas Baraka');
     }
 }
 

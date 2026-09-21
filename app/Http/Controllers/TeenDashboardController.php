@@ -48,7 +48,10 @@ class TeenDashboardController extends Controller
             ->get();
 
         $submissions = FormSubmission::where('camp_season_id', $season->id)
-            ->where('user_id', $user->id)
+            ->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('teen_id', $user->id);
+            })
             ->with(['values.field', 'form'])
             ->get()
             ->keyBy('form_id');
@@ -60,6 +63,24 @@ class TeenDashboardController extends Controller
             'packingList' => $packingList,
             'forms' => $forms,
             'submissions' => $submissions,
+        ]);
+    }
+
+    public function showSubmission(FormSubmission $submission)
+    {
+        $user = Auth::guard('web')->user();
+
+        if ($submission->teen_id !== $user->id && $submission->user_id !== $user->id) {
+            abort(403, 'Unauthorized access to submission.');
+        }
+
+        $submission->load(['form.fields', 'values.field', 'teen', 'user', 'reviewedByParent']);
+
+        return view('forms.submission-show', [
+            'submission' => $submission,
+            'form' => $submission->form,
+            'isParent' => false,
+            'backRoute' => route('teen.dashboard'),
         ]);
     }
 

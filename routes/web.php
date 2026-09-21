@@ -68,12 +68,16 @@ Route::middleware('auth:web')->group(function () {
             Route::get('/packing-list/pdf', [PackingListController::class, 'downloadPdf'])->name('packing.pdf');
             Route::get('/forms/{form}', [TeenDashboardController::class, 'showForm'])->name('forms.show');
             Route::post('/forms/{form}/submit', [TeenDashboardController::class, 'submitForm'])->name('forms.submit');
+            Route::get('/forms/submissions/{submission}', [TeenDashboardController::class, 'showSubmission'])->name('forms.submission.show');
         });
 
         // Parent Portal
         Route::middleware('role:parent')->prefix('parent')->name('parent.')->group(function () {
             Route::get('/dashboard', [ParentDashboardController::class, 'index'])->name('dashboard');
             Route::get('/packing-list/pdf', [PackingListController::class, 'downloadPdf'])->name('packing.pdf');
+            Route::get('/forms/{form}', [ParentDashboardController::class, 'showForm'])->name('forms.show');
+            Route::post('/forms/{form}/submit', [ParentDashboardController::class, 'submitForm'])->name('forms.submit');
+            Route::get('/forms/submissions/{submission}', [ParentDashboardController::class, 'showSubmission'])->name('forms.submission.show');
             Route::post('/declarations/{registration}', [ParentDashboardController::class, 'updateDeclaration'])->name('declarations.update');
             Route::post('/withdraw/{registration}', [ParentDashboardController::class, 'withdrawTeen'])->name('withdraw');
             Route::post('/forms/approve/{submission}', [ParentDashboardController::class, 'approveFormSubmission'])->name('forms.approve');

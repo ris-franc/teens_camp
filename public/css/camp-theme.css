@@ -877,3 +877,127 @@ h1, h2, h3, h4, .camp-logo-font, .navbar-brand, .landing-title, .section-title {
     }
 }
 
+/* ══════════════════════════════════════════════════════════
+   APP-LIKE MOBILE BOTTOM NAVIGATION BAR (< 768px)
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 767.98px) {
+    body {
+        padding-bottom: 74px !important; /* Space for sticky bottom bar */
+    }
+
+    .camp-mobile-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: rgba(15, 15, 18, 0.94);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 1040;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 4px 6px 6px;
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        color: rgba(255, 255, 255, 0.65);
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        padding: 4px 2px;
+        border-radius: 10px;
+        transition: all 0.18s ease;
+        position: relative;
+    }
+
+    .mobile-nav-item i {
+        font-size: 1.25rem;
+        margin-bottom: 2px;
+        transition: transform 0.18s ease, color 0.18s ease;
+    }
+
+    .mobile-nav-item:active {
+        transform: scale(0.92);
+    }
+
+    .mobile-nav-item.active,
+    .mobile-nav-item:hover {
+        color: var(--camp-red);
+    }
+
+    .mobile-nav-item.active i {
+        transform: translateY(-2px);
+        color: var(--camp-red);
+    }
+
+    .mobile-nav-badge {
+        position: absolute;
+        top: 2px;
+        right: calc(50% - 16px);
+        background: var(--camp-red);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 800;
+        padding: 2px 5px;
+        border-radius: 10px;
+        line-height: 1;
+    }
+
+    /* Mobile Data Card Utility */
+    .mobile-data-card {
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 14px;
+        transition: border-color 0.2s ease;
+    }
+    .mobile-data-card:hover {
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Smooth Horizontally Scrollable Tabs / Pills */
+    .camp-chip-scroll {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 8px;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+    .camp-chip-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Topbar countdown compact on phones */
+    .camp-topbar .countdown-box {
+        padding: 2px 8px;
+        gap: 4px;
+    }
+    .camp-topbar .countdown-unit .countdown-val {
+        font-size: 0.9rem;
+    }
+    .camp-topbar .countdown-unit .countdown-label {
+        font-size: 8px;
+    }
+
+    /* Form controls tap size */
+    .form-control, .form-select {
+        min-height: 44px;
+        font-size: 15px;
+    }
+    .btn {
+        min-height: 40px;
+    }
+}
+

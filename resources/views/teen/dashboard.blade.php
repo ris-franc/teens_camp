@@ -297,15 +297,19 @@
                                 @endif
                             </div>
 
-                            <div class="mt-3 pt-2 border-top border-secondary border-opacity-25">
-                                @if(!$sub || $sub->status === 'returned')
+                            <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex gap-2">
+                                @if(!$sub)
                                     <a href="{{ route('teen.forms.show', $form) }}" class="btn btn-camp-red btn-sm w-100 fw-bold">
-                                        <i class="bi bi-pencil-square me-1"></i> {{ $sub ? 'Revise & Resubmit Form' : 'Fill Form Now' }}
+                                        <i class="bi bi-pencil-square me-1"></i> Fill Form Now
+                                    </a>
+                                @elseif($sub->status === 'returned')
+                                    <a href="{{ route('teen.forms.show', $form) }}" class="btn btn-danger btn-sm w-100 fw-bold">
+                                        <i class="bi bi-arrow-repeat me-1"></i> Revise &amp; Resubmit
                                     </a>
                                 @else
-                                    <button class="btn btn-outline-secondary btn-sm w-100" disabled>
-                                        <i class="bi bi-lock me-1"></i> Form {{ ucfirst(str_replace('_', ' ', $sub->status)) }}
-                                    </button>
+                                    <a href="{{ route('teen.forms.submission.show', $sub) }}" class="btn btn-outline-danger btn-sm w-100 fw-bold">
+                                        <i class="bi bi-eye-fill me-1"></i> View My Responses
+                                    </a>
                                 @endif
                             </div>
                         </div>

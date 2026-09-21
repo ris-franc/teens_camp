@@ -308,84 +308,219 @@
     @endif
 
     {{-- ══════════════════════════════════════════════════════════
-         PENDING FORM APPROVALS BANNER (ACTION REQUIRED)
+         CAMP FORMS & PARENT CONSENT HUB
     ══════════════════════════════════════════════════════════ --}}
-    @if($pendingFormReviews->count() > 0)
-        <div class="camp-card p-4 mb-4 border-warning" style="background: rgba(234, 179, 8, 0.04);">
-            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-warning text-dark px-2 py-1 fw-bold">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Action Required
-                    </span>
-                    <h5 class="fw-bold mb-0 text-white">Form Submissions Awaiting Sign-Off ({{ $pendingFormReviews->count() }})</h5>
+    <div class="camp-card p-3 p-md-4 mb-4" id="forms-section">
+        <div class="d-flex flex-wrap align-items-center justify-content-between border-bottom border-secondary border-opacity-25 pb-3 mb-3 gap-2">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-danger text-uppercase px-2 py-1" style="font-size: 10px;">Forms &amp; Consents</span>
+                    @if($pendingFormReviews->count() > 0)
+                        <span class="badge bg-warning text-dark px-2 py-1 fw-bold">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ $pendingFormReviews->count() }} Awaiting Sign-off
+                        </span>
+                    @endif
                 </div>
-                <span class="small text-muted">Forms completed by your teens that require parental sign-off</span>
+                <h5 class="fw-bold mb-0 text-white">
+                    <i class="bi bi-card-checklist text-danger me-2"></i> Camp Forms, Surveys &amp; Sign-Offs
+                </h5>
+                <p class="text-white-50 small mb-0 mt-1">Complete mandatory parent waivers, submit camper preferences, and sign off on submitted teen surveys.</p>
             </div>
-
-            <div class="row g-3">
-                @foreach($pendingFormReviews as $rev)
-                    <div class="col-md-6">
-                        <div class="panel-well h-100 d-flex flex-column justify-content-between border-warning border-opacity-50">
-                            <div>
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div>
-                                        <h6 class="fw-bold text-white mb-0">{{ $rev->form->title }}</h6>
-                                        <div class="small text-muted">Camper: <strong class="text-danger">{{ $rev->teen->name }}</strong></div>
-                                    </div>
-                                    <span class="badge bg-warning text-dark">Pending Sign-Off</span>
-                                </div>
-
-                                <div class="p-2 my-2 rounded small" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                                    @foreach($rev->values->take(3) as $val)
-                                        <div class="text-white-50"><strong class="text-white">{{ $val->field->label }}:</strong> {{ $val->value ?: ($val->file_path ? 'Attached Document' : 'N/A') }}</div>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <div class="d-flex gap-2 mt-3 pt-2 border-top border-secondary border-opacity-25">
-                                <form action="{{ route('parent.forms.approve', $rev) }}" method="POST" class="flex-grow-1">
-                                    @csrf
-                                    <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">
-                                        <i class="bi bi-check-circle-fill me-1"></i> Approve &amp; Sign-Off
-                                    </button>
-                                </form>
-
-                                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal-{{ $rev->id }}">
-                                    <i class="bi bi-arrow-return-left me-1"></i> Return
-                                </button>
-                            </div>
-                        </div>
-
-                        {{-- Return Feedback Modal --}}
-                        <div class="modal fade" id="returnModal-{{ $rev->id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content" style="background: #141418; color: #fff; border: 1px solid rgba(255,255,255,.1);">
-                                    <form action="{{ route('parent.forms.return', $rev) }}" method="POST">
-                                        @csrf
-                                        <div class="modal-header border-secondary border-opacity-25">
-                                            <h5 class="modal-title fw-bold">Return Form to {{ $rev->teen->name }}</h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p class="small text-muted">Provide instructions for the adjustments needed before you can sign off.</p>
-                                            <div class="mb-3">
-                                                <label class="form-label fw-semibold text-white">Corrections Required</label>
-                                                <textarea class="form-control" name="parent_feedback" rows="3" required placeholder="e.g. Please update your dietary preferences or emergency contact details."></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer border-secondary border-opacity-25">
-                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" class="btn btn-danger btn-sm">Return Form</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
+            <div>
+                <span class="badge bg-dark border border-secondary text-white-50 px-3 py-2">
+                    {{ $parentForms->count() }} Parent Forms &bull; {{ $completedFamilySubmissions->count() }} Signed
+                </span>
             </div>
         </div>
-    @endif
+
+        {{-- 1. Action Required: Camper Forms Awaiting Parent Sign-off --}}
+        @if($pendingFormReviews->count() > 0)
+            <div class="p-3 mb-4 rounded border border-warning" style="background: rgba(234, 179, 8, 0.05);">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-warning text-dark px-2 py-1 fw-bold">
+                        <i class="bi bi-bell-fill me-1"></i> Sign-Off Required
+                    </span>
+                    <strong class="text-white">Forms submitted by your campers waiting for your approval:</strong>
+                </div>
+
+                <div class="row g-3">
+                    @foreach($pendingFormReviews as $rev)
+                        <div class="col-md-6">
+                            <div class="panel-well h-100 d-flex flex-column justify-content-between border-warning border-opacity-40 p-3">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="fw-bold text-white mb-0">{{ $rev->form->title }}</h6>
+                                            <div class="small text-white-50">Camper: <strong class="text-danger">{{ $rev->teen->name }}</strong></div>
+                                        </div>
+                                        <span class="badge bg-warning text-dark">Pending Approval</span>
+                                    </div>
+
+                                    <div class="p-2 my-2 rounded small" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                                        @foreach($rev->values->take(2) as $val)
+                                            <div class="text-white-50 text-truncate"><strong class="text-white">{{ $val->field->label }}:</strong> {{ $val->value ?: ($val->file_path ? 'Attached Document' : 'N/A') }}</div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-top border-secondary border-opacity-25">
+                                    <a href="{{ route('parent.forms.submission.show', $rev) }}" class="btn btn-outline-light btn-sm flex-fill" title="Inspect full responses">
+                                        <i class="bi bi-eye me-1"></i> Review Answers
+                                    </a>
+
+                                    <form action="{{ route('parent.forms.approve', $rev) }}" method="POST" class="flex-fill">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Approve &amp; Sign
+                                        </button>
+                                    </form>
+
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal-{{ $rev->id }}">
+                                        <i class="bi bi-arrow-return-left me-1"></i> Return
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Return Feedback Modal --}}
+                            <div class="modal fade" id="returnModal-{{ $rev->id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content" style="background: #141418; color: #fff; border: 1px solid rgba(255,255,255,.1);">
+                                        <form action="{{ route('parent.forms.return', $rev) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header border-secondary border-opacity-25">
+                                                <h5 class="modal-title fw-bold">Return Form to {{ $rev->teen->name }}</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p class="small text-white-50">Provide guidance or adjustments needed before you can sign off.</p>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-semibold text-white">Corrections Required</label>
+                                                    <textarea class="form-control bg-dark text-white border-secondary" name="parent_feedback" rows="3" required placeholder="e.g. Please update your dietary preferences or cabin requests."></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-secondary border-opacity-25">
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">Return Form</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        {{-- 2. Forms Assigned to Parents to Complete --}}
+        <div class="mb-4">
+            <h6 class="fw-bold text-uppercase text-danger small letter-spacing-1 mb-3">
+                <i class="bi bi-pencil-square me-1"></i> Forms Assigned to Parents / Guardians
+            </h6>
+
+            @if($parentForms->count() > 0)
+                <div class="row g-3">
+                    @foreach($parentForms as $pForm)
+                        @php
+                            $sub = $parentSubmissions->get($pForm->id);
+                        @endphp
+                        <div class="col-md-6">
+                            <div class="panel-well h-100 d-flex flex-column justify-content-between p-3" style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08);">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold text-white mb-0">{{ $pForm->title }}</h6>
+                                        @if($sub)
+                                            <span class="badge bg-success py-1 px-2" style="font-size: 11px;">
+                                                <i class="bi bi-check-circle-fill me-1"></i> Completed
+                                            </span>
+                                        @else
+                                            <span class="badge bg-danger py-1 px-2" style="font-size: 11px;">
+                                                Action Required
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="text-white-50 small mb-2">{{ $pForm->description ?: 'Mandatory consent & survey for camp participation.' }}</p>
+                                    
+                                    <div class="d-flex align-items-center gap-2 small text-white-50 mb-2">
+                                        <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">
+                                            {{ $pForm->fields->count() }} Questions
+                                        </span>
+                                        @if($pForm->target_role === 'both')
+                                            <span class="badge bg-dark border border-secondary text-secondary" style="font-size: 10px;">Parent &amp; Teen</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex gap-2">
+                                    @if(!$sub)
+                                        <a href="{{ route('parent.forms.show', $pForm) }}" class="btn btn-camp-red btn-sm w-100 fw-bold py-2">
+                                            <i class="bi bi-pencil-square me-1"></i> Fill Form Now
+                                        </a>
+                                    @else
+                                        <a href="{{ route('parent.forms.submission.show', $sub) }}" class="btn btn-outline-danger btn-sm flex-fill py-1">
+                                            <i class="bi bi-eye-fill me-1"></i> View Responses
+                                        </a>
+                                        <a href="{{ route('parent.forms.show', $pForm) }}" class="btn btn-outline-secondary btn-sm flex-fill py-1">
+                                            <i class="bi bi-pencil me-1"></i> Update
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="p-3 text-center text-muted border rounded panel-well">
+                    <p class="small mb-0">No direct parent forms have been released by camp administration yet.</p>
+                </div>
+            @endif
+        </div>
+
+        {{-- 3. Completed & Signed Forms Ledger --}}
+        @if($completedFamilySubmissions->count() > 0)
+            <div>
+                <h6 class="fw-bold text-uppercase text-white-50 small letter-spacing-1 mb-2">
+                    <i class="bi bi-archive-fill text-success me-1"></i> Signed &amp; Completed Forms Archive ({{ $completedFamilySubmissions->count() }})
+                </h6>
+                <div class="panel-well p-0 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0 small">
+                            <thead>
+                                <tr class="text-white-50 border-bottom border-secondary">
+                                    <th class="ps-3">Form Title</th>
+                                    <th>Submitted By</th>
+                                    <th>Camper</th>
+                                    <th>Date Completed</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($completedFamilySubmissions as $item)
+                                    <tr class="border-secondary border-opacity-25">
+                                        <td class="ps-3 fw-bold text-white">{{ $item->form->title }}</td>
+                                        <td>{{ $item->user?->name ?? 'You' }}</td>
+                                        <td><span class="text-danger">{{ $item->teen?->name ?? 'Family' }}</span></td>
+                                        <td>{{ $item->submitted_at ? $item->submitted_at->format('M d, Y • h:i A') : $item->created_at->format('M d, Y') }}</td>
+                                        <td>
+                                            <span class="badge bg-success py-1 px-2" style="font-size: 10px;">
+                                                <i class="bi bi-check2-all me-1"></i> Completed
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <a href="{{ route('parent.forms.submission.show', $item) }}" class="btn btn-outline-danger btn-sm py-1 px-2" style="font-size: 11px;">
+                                                <i class="bi bi-eye-fill me-1"></i> View Answers
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
 
     {{-- ══════════════════════════════════════════════════════════
          CHILDREN OVERVIEW CARDS (MODERN & STRUCTURED)
@@ -794,7 +929,39 @@
         </div>
 
         @if($payments->count() > 0)
-            <div class="table-responsive">
+            {{-- Mobile Cards for Phones (< 768px) --}}
+            <div class="d-md-none d-flex flex-column gap-2 mb-2">
+                @foreach($payments as $p)
+                    <div class="p-3 rounded panel-well" style="background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <a href="{{ route('receipts.show', $p->receipt_number) }}" class="badge bg-dark border border-danger text-danger text-decoration-none py-1 px-2 fw-bold" style="font-size: 11px;">
+                                    <i class="bi bi-receipt me-1"></i> #{{ $p->receipt_number }}
+                                </a>
+                                <span class="d-block text-white fw-bold mt-1 fs-6">{{ $p->registration?->teen?->name ?? 'Camper' }}</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="fs-6 fw-black text-danger d-block">KES {{ number_format($p->amount, 2) }}</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle py-0 px-2" style="font-size: 10px;">
+                                    <i class="bi bi-patch-check-fill me-1"></i> Confirmed
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 small text-white-50">
+                            <div>
+                                <i class="bi bi-calendar3 me-1"></i> {{ $p->created_at->format('M d, Y') }}
+                                <div class="text-muted" style="font-size: 11px;">{{ $p->payment_method }} @if($p->reference) &bull; {{ $p->reference }} @endif</div>
+                            </div>
+                            <a href="{{ route('receipts.show', $p->receipt_number) }}" class="btn btn-outline-danger btn-sm py-1 px-2" style="font-size: 11px;">
+                                <i class="bi bi-receipt"></i> View
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Desktop Table (>= 768px) --}}
+            <div class="d-none d-md-block table-responsive">
                 <table class="table table-camp align-middle">
                     <thead>
                         <tr>

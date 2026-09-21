@@ -6,6 +6,7 @@ use App\Models\AdoptATeenRequest;
 use App\Models\CampSeason;
 use App\Models\Form;
 use App\Models\FormSubmission;
+use App\Models\FormSubmissionValue;
 use App\Models\Notification;
 use App\Models\PackingList;
 use App\Models\Payment;
@@ -75,13 +76,31 @@ class ParentDashboardController extends Controller
                 ->groupBy('category');
         }
 
-        // Parent forms
+        // Parent forms and submissions
         $parentForms = collect();
+        $parentSubmissions = collect();
+        $completedFamilySubmissions = collect();
         if ($season) {
             $parentForms = Form::where('camp_season_id', $season->id)
                 ->where('is_published', true)
                 ->whereIn('target_role', ['parent', 'both'])
                 ->with('fields')
+                ->get();
+
+            $parentSubmissions = FormSubmission::where('camp_season_id', $season->id)
+                ->where('user_id', $parent->id)
+                ->with(['values.field', 'form', 'teen'])
+                ->get()
+                ->keyBy('form_id');
+
+            $completedFamilySubmissions = FormSubmission::where('camp_season_id', $season->id)
+                ->where('status', 'submitted')
+                ->where(function ($q) use ($parent, $teens) {
+                    $q->where('user_id', $parent->id)
+                      ->orWhereIn('teen_id', $teens->pluck('id'));
+                })
+                ->with(['form', 'teen', 'user', 'values.field', 'reviewedByParent'])
+                ->latest('submitted_at')
                 ->get();
         }
 
@@ -126,6 +145,8 @@ class ParentDashboardController extends Controller
             'adoptRequests' => $adoptRequests,
             'packingList' => $packingList,
             'parentForms' => $parentForms,
+            'parentSubmissions' => $parentSubmissions,
+            'completedFamilySubmissions' => $completedFamilySubmissions,
             'payments' => $payments,
             'receipts' => $receipts,
             'confirmedReceipt' => $confirmedReceipt,
@@ -250,6 +271,146 @@ class ParentDashboardController extends Controller
         );
 
         return back()->with('info', "Form returned to {$submission->teen->name} with your feedback.");
+    }
+
+    /**
+     * Show form for parent to fill.
+     */
+    public function showForm(Form $form)
+    {
+        $parent = Auth::guard('web')->user();
+        $season = CampSeason::getActive();
+
+        if ($form->camp_season_id !== $season?->id || !in_array($form->target_role, ['parent', 'both'])) {
+            abort(403, 'Form not available for parent completion.');
+        }
+
+        $form->load('fields');
+
+        $teens = $parent->teens()->whereHas('registrations', function ($q) use ($season) {
+            $q->where('camp_season_id', $season->id);
+        })->get();
+
+        $selectedTeenId = request()->query('teen_id');
+        if (!$selectedTeenId && $teens->isNotEmpty()) {
+            $selectedTeenId = $teens->first()->id;
+        }
+
+        // Check existing submission
+        $submissionQuery = FormSubmission::where('form_id', $form->id)
+            ->where('user_id', $parent->id);
+        if ($selectedTeenId) {
+            $submissionQuery->where(function ($q) use ($selectedTeenId) {
+                $q->where('teen_id', $selectedTeenId)->orWhereNull('teen_id');
+            });
+        }
+        $submission = $submissionQuery->with('values')->first();
+
+        return view('parent.form-fill', [
+            'form' => $form,
+            'submission' => $submission,
+            'season' => $season,
+            'parent' => $parent,
+            'teens' => $teens,
+            'selectedTeenId' => $selectedTeenId,
+        ]);
+    }
+
+    /**
+     * Submit parent responses for a form.
+     */
+    public function submitForm(Request $request, Form $form)
+    {
+        $parent = Auth::guard('web')->user();
+        $season = CampSeason::getActive();
+
+        $form->load('fields');
+
+        $teenId = $request->filled('teen_id') ? $request->teen_id : null;
+        if ($teenId && !$parent->teens()->where('users.id', $teenId)->exists()) {
+            abort(403, 'Unauthorized child selection.');
+        }
+
+        // Check if existing submission
+        $submission = FormSubmission::firstOrNew([
+            'form_id' => $form->id,
+            'camp_season_id' => $season->id,
+            'user_id' => $parent->id,
+            'teen_id' => $teenId,
+        ]);
+
+        $submission->status = 'submitted';
+        $submission->submitted_at = now();
+        $submission->save();
+
+        // Save fields
+        foreach ($form->fields as $field) {
+            $valRecord = FormSubmissionValue::firstOrNew([
+                'form_submission_id' => $submission->id,
+                'form_field_id' => $field->id,
+            ]);
+
+            if ($field->field_type === 'file_upload') {
+                if ($request->hasFile("field_{$field->id}")) {
+                    $path = $request->file("field_{$field->id}")->store('form_uploads', 'public');
+                    $valRecord->file_path = $path;
+                    $valRecord->value = $request->file("field_{$field->id}")->getClientOriginalName();
+                }
+            } elseif ($field->field_type === 'checkbox') {
+                $values = $request->input("field_{$field->id}", []);
+                $valRecord->value = is_array($values) ? json_encode($values) : $values;
+            } else {
+                $valRecord->value = $request->input("field_{$field->id}");
+            }
+
+            $valRecord->save();
+        }
+
+        $teen = $teenId ? User::find($teenId) : null;
+
+        Notification::notifyStaff(
+            "Parent Form Submitted",
+            "{$parent->name} submitted '{$form->title}'" . ($teen ? " for {$teen->name}." : "."),
+            'form',
+            route('backoffice.forms.show', $form->id),
+            'bi-file-earmark-check-fill text-success'
+        );
+
+        Notification::notifyUser(
+            $parent->id,
+            "Form Submitted Successfully",
+            "Your responses for '{$form->title}' have been submitted to Camp Administration.",
+            'form',
+            route('parent.dashboard'),
+            'bi-check2-circle text-success'
+        );
+
+        return redirect()->route('parent.dashboard')->with('success', "Form '{$form->title}' submitted successfully!");
+    }
+
+    /**
+     * View completed form submission details.
+     */
+    public function showSubmission(FormSubmission $submission)
+    {
+        $parent = Auth::guard('web')->user();
+
+        // Check authorization
+        $isMySubmission = $submission->user_id === $parent->id;
+        $isMyTeensSubmission = $submission->teen_id && $parent->teens()->where('users.id', $submission->teen_id)->exists();
+
+        if (!$isMySubmission && !$isMyTeensSubmission) {
+            abort(403, 'Unauthorized access to submission.');
+        }
+
+        $submission->load(['form.fields', 'values.field', 'teen', 'user', 'reviewedByParent']);
+
+        return view('forms.submission-show', [
+            'submission' => $submission,
+            'form' => $submission->form,
+            'isParent' => true,
+            'backRoute' => route('parent.dashboard'),
+        ]);
     }
 
     /**
