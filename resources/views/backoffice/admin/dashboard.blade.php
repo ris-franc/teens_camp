@@ -988,28 +988,31 @@
         </div>
 
         <!-- ADOPT-A-TEEN IMMUTABLE KITTY AUDIT LEDGER (With interactive filter chips) -->
-        <div class="camp-card p-4">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3 border-bottom pb-2">
+        <div class="camp-card p-3 p-md-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3 border-bottom pb-3">
                 <div>
-                    <h5 class="fw-bold mb-0"><i class="bi bi-journal-text text-danger me-2"></i> Adopt-a-Teen Kitty Audit Ledger</h5>
+                    <h5 class="fw-bold mb-0 fs-6 fs-md-5"><i class="bi bi-journal-text text-danger me-2"></i> Adopt-a-Teen Kitty Audit Ledger</h5>
                     <p class="text-muted small mb-0">Immutable ledger trail of all church donations, campaign profit transfers, and sponsorships.</p>
                 </div>
 
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <!-- Interactive Filter Chips -->
-                    <span class="camp-filter-chip active" id="chip-all" onclick="filterLedgerRows('all', this)">All ({{ $recentKittyLedger->count() }})</span>
-                    <span class="camp-filter-chip" id="chip-donations" onclick="filterLedgerRows('donation_in', this)">Donations</span>
-                    <span class="camp-filter-chip" id="chip-campaign" onclick="filterLedgerRows('campaign_profit_in', this)">Campaign Profits</span>
-                    <span class="camp-filter-chip" id="chip-aid" onclick="filterLedgerRows('adopt_out', this)">Sponsorships</span>
+                <div class="d-flex flex-column flex-sm-row gap-2 align-items-stretch align-items-sm-center w-100 w-md-auto">
+                    <!-- Interactive Filter Chips: swipeable on mobile -->
+                    <div class="camp-chip-scroll flex-nowrap pb-1">
+                        <span class="camp-filter-chip active text-nowrap" id="chip-all" onclick="filterLedgerRows('all', this)">All ({{ $recentKittyLedger->count() }})</span>
+                        <span class="camp-filter-chip text-nowrap" id="chip-donations" onclick="filterLedgerRows('donation_in', this)">Donations</span>
+                        <span class="camp-filter-chip text-nowrap" id="chip-campaign" onclick="filterLedgerRows('campaign_profit_in', this)">Campaign Profits</span>
+                        <span class="camp-filter-chip text-nowrap" id="chip-aid" onclick="filterLedgerRows('adopt_out', this)">Sponsorships</span>
+                    </div>
 
-                    <button type="button" class="btn btn-camp-outline-red btn-sm ms-md-2" data-bs-toggle="modal" data-bs-target="#donationModal">
+                    <button type="button" class="btn btn-camp-outline-red btn-sm text-nowrap py-2" data-bs-toggle="modal" data-bs-target="#donationModal">
                         <i class="bi bi-plus-lg me-1"></i> Record Donation
                     </button>
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-camp align-middle" id="kittyLedgerTable">
+            {{-- Desktop / Tablet Table View --}}
+            <div class="d-none d-md-block table-responsive">
+                <table class="table table-camp align-middle mb-0" id="kittyLedgerTable">
                     <thead>
                         <tr>
                             <th>Date & Time</th>
@@ -1065,6 +1068,64 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            {{-- Mobile Card Feed (<768px) --}}
+            <div class="d-md-none d-flex flex-column gap-3" id="kittyLedgerMobileFeed">
+                @forelse($recentKittyLedger as $entry)
+                    <div class="mobile-data-card ledger-row" data-type="{{ $entry->type }}">
+                        <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                            <div>
+                                @if($entry->type === 'donation_in')
+                                    <span class="badge bg-success"><i class="bi bi-arrow-down-left me-1"></i> Donation In</span>
+                                @elseif($entry->type === 'campaign_profit_in')
+                                    <span class="badge bg-primary"><i class="bi bi-bag-check me-1"></i> Campaign Profit</span>
+                                @else
+                                    <span class="badge bg-danger"><i class="bi bi-arrow-up-right me-1"></i> Adopt Out</span>
+                                @endif
+                                <div class="small text-muted mt-1" style="font-size: 11px;">
+                                    <i class="bi bi-clock me-1"></i>{{ $entry->created_at->format('M d, Y H:i') }}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fs-6 fw-bold {{ $entry->type === 'adopt_out' ? 'text-danger' : 'text-success' }}">
+                                    {{ $entry->type === 'adopt_out' ? '-' : '+' }}KES {{ number_format($entry->amount, 2) }}
+                                </div>
+                                <div class="text-muted small" style="font-size: 10px;">
+                                    Bal: KES {{ number_format($entry->balance_after, 2) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-2 rounded mb-2 text-white-50 small" style="background-color: rgba(255, 255, 255, 0.03); line-height: 1.35;">
+                            {{ $entry->description }}
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top border-secondary border-opacity-25" style="font-size: 11px;">
+                            <div>
+                                @if($entry->reference)
+                                    <code class="fw-bold copy-badge" onclick="navigator.clipboard.writeText('{{ $entry->reference }}'); alert('Copied reference: {{ $entry->reference }}')" title="Click to copy">
+                                        <i class="bi bi-copy me-1"></i>{{ $entry->reference }}
+                                    </code>
+                                @else
+                                    <span class="text-muted">Auto-Generated</span>
+                                @endif
+                            </div>
+                            <div>
+                                @if($entry->receipt)
+                                    <a href="{{ route('receipts.show', $entry->receipt->receipt_number) }}" target="_blank" class="badge bg-dark border text-decoration-none">
+                                        <i class="bi bi-receipt me-1"></i> #{{ $entry->receipt->receipt_number }}
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-inbox fs-3 d-block mb-1"></i>
+                        No kitty transactions recorded for this season yet.
+                    </div>
+                @endforelse
             </div>
         </div>
 

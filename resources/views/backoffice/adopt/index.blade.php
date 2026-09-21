@@ -23,54 +23,54 @@
             </p>
         </div>
 
-        <!-- Portal Actions Toolbar -->
-        <div class="d-flex flex-wrap gap-2 align-items-center">
+        <!-- Portal Actions Toolbar (Responsive on Mobile) -->
+        <div class="d-grid d-sm-flex flex-wrap gap-2 align-items-center w-100 w-xl-auto" style="grid-template-columns: repeat(2, 1fr);">
             <!-- M-Pesa Paybill Quick Copy Pill -->
             @php $mpSettings = \App\Models\MpesaSetting::getSettings(); @endphp
-            <div class="btn btn-outline-danger btn-sm d-flex align-items-center gap-2">
+            <div class="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center gap-2 py-2" style="grid-column: span 2;">
                 <i class="bi bi-phone-vibrate-fill"></i>
                 <span>Paybill: <strong>{{ $mpSettings->paybill_number }}</strong></span>
                 <span class="badge bg-danger text-white">Acc: {{ $mpSettings->adopt_account }}</span>
             </div>
 
             <!-- Record Kitty Donation Modal Trigger -->
-            <button type="button" class="btn btn-camp-red btn-sm d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#adoptDonationModal">
+            <button type="button" class="btn btn-camp-red btn-sm d-flex align-items-center justify-content-center gap-1 py-2" data-bs-toggle="modal" data-bs-target="#adoptDonationModal">
                 <i class="bi bi-plus-circle me-1"></i>
-                <span>Add Kitty Donation</span>
+                <span>Add Donation</span>
             </button>
 
             <!-- Matchmaker Quick Link -->
-            <button type="button" class="btn btn-camp-dark btn-sm d-flex align-items-center gap-1" onclick="switchAdoptTab('adopt-tab-matchmaker')">
+            <button type="button" class="btn btn-camp-dark btn-sm d-flex align-items-center justify-content-center gap-1 py-2 border border-secondary border-opacity-25" onclick="switchAdoptTab('adopt-tab-matchmaker')">
                 <i class="bi bi-people-fill me-1"></i>
-                <span>Sponsor a Camper</span>
+                <span>Sponsor Camper</span>
             </button>
         </div>
     </div>
 
     @if($season)
-        <!-- 4 TOP FINANCIAL & APPLICATION METRICS -->
-        <div class="row g-3 mb-4">
+        <!-- 4 TOP FINANCIAL & APPLICATION METRICS (Responsive 2x2 on mobile) -->
+        <div class="row g-2 g-md-3 mb-4">
             <!-- 1. Available Kitty Pool -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="camp-metric-card accent-red h-100" onclick="switchAdoptTab('adopt-tab-ledger')" style="cursor: pointer;" title="Click to view Kitty Audit Ledger">
+            <div class="col-6 col-xl-3">
+                <div class="camp-metric-card accent-red h-100 p-3" onclick="switchAdoptTab('adopt-tab-ledger')" style="cursor: pointer;" title="Click to view Kitty Audit Ledger">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="overflow-hidden">
-                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Active Kitty Pool</span>
-                            <div class="fs-4 fw-black lh-1 mt-1 text-danger text-break">
-                                KES {{ number_format($metrics['kittyBalance'], 2) }}
+                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1" style="font-size: 10px;">Active Kitty Pool</span>
+                            <div class="fs-5 fs-md-4 fw-black lh-1 mt-1 text-danger text-break">
+                                KES {{ number_format($metrics['kittyBalance'], 0) }}
                             </div>
                         </div>
-                        <div class="metric-icon-bubble" style="background: rgba(220, 38, 38, 0.15); color: #EF4444; border: 1px solid rgba(220, 38, 38, 0.3);">
+                        <div class="metric-icon-bubble d-none d-sm-flex" style="background: rgba(220, 38, 38, 0.15); color: #EF4444; border: 1px solid rgba(220, 38, 38, 0.3); width: 34px; height: 34px; font-size: 1rem;">
                             <i class="bi bi-heart-pulse-fill"></i>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between small text-muted mt-2 flex-wrap gap-1">
-                        <span class="text-success"><i class="bi bi-arrow-down-left me-1"></i>+KES {{ number_format($metrics['totalKittyIn'], 0) }} In</span>
-                        <span class="text-danger"><i class="bi bi-arrow-up-right me-1"></i>-KES {{ number_format($metrics['totalKittyOut'], 0) }} Out</span>
+                    <div class="d-flex justify-content-between small text-muted mt-2 flex-wrap gap-1" style="font-size: 10px;">
+                        <span class="text-success"><i class="bi bi-arrow-down-left"></i> +{{ number_format($metrics['totalKittyIn'], 0) }}</span>
+                        <span class="text-danger"><i class="bi bi-arrow-up-right"></i> -{{ number_format($metrics['totalKittyOut'], 0) }}</span>
                     </div>
 
-                    <div class="mini-meter-track">
+                    <div class="mini-meter-track mt-2">
                         @php
                             $kittyFlowTotal = max(1, $metrics['totalKittyIn'] + $metrics['totalKittyOut']);
                             $kittyNetPct = min(100, round(($metrics['kittyBalance'] / max(1, $metrics['totalKittyIn'])) * 100));
@@ -78,113 +78,113 @@
                         <div class="mini-meter-fill bg-danger" style="width: {{ $kittyNetPct }}%;"></div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 small text-muted border-top border-secondary border-opacity-15">
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Available Funds</span>
-                        <span class="text-danger fw-semibold">View Ledger &rarr;</span>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 small text-muted border-top border-secondary border-opacity-15" style="font-size: 10px;">
+                        <span class="badge bg-danger-subtle text-danger px-1 py-0">Available</span>
+                        <span class="text-danger fw-semibold d-none d-sm-inline">View Ledger &rarr;</span>
                     </div>
                 </div>
             </div>
 
             <!-- 2. Aid Disbursed -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="camp-metric-card accent-emerald h-100">
+            <div class="col-6 col-xl-3">
+                <div class="camp-metric-card accent-emerald h-100 p-3">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="overflow-hidden">
-                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Sponsorships Granted</span>
-                            <div class="fs-4 fw-black lh-1 mt-1 text-success text-break">
-                                KES {{ number_format($metrics['totalKittyOut'], 2) }}
+                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1" style="font-size: 10px;">Aid Granted</span>
+                            <div class="fs-5 fs-md-4 fw-black lh-1 mt-1 text-success text-break">
+                                KES {{ number_format($metrics['totalKittyOut'], 0) }}
                             </div>
                         </div>
-                        <div class="metric-icon-bubble" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                        <div class="metric-icon-bubble d-none d-sm-flex" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); width: 34px; height: 34px; font-size: 1rem;">
                             <i class="bi bi-patch-check-fill"></i>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between small text-muted mt-2">
-                        <span>{{ $metrics['approvedCount'] }} Teens Sponsored</span>
+                    <div class="d-flex justify-content-between small text-muted mt-2" style="font-size: 10px;">
+                        <span>{{ $metrics['approvedCount'] }} Teens</span>
                         <span class="fw-bold text-success">100% Disbursed</span>
                     </div>
 
-                    <div class="mini-meter-track">
+                    <div class="mini-meter-track mt-2">
                         <div class="mini-meter-fill" style="width: 100%; background: linear-gradient(90deg, #059669 0%, #10B981 100%);"></div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 small text-muted border-top border-secondary border-opacity-15">
-                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Church Mission</span>
-                        <span class="text-success fw-semibold">Audited Receipts</span>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 small text-muted border-top border-secondary border-opacity-15" style="font-size: 10px;">
+                        <span class="badge bg-success-subtle text-success px-1 py-0">Mission</span>
+                        <span class="text-success fw-semibold d-none d-sm-inline">Audited</span>
                     </div>
                 </div>
             </div>
 
             <!-- 3. Pending Application Need -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="camp-metric-card accent-crimson h-100" onclick="switchAdoptTab('adopt-tab-queue')" style="cursor: pointer;" title="Click to view Applications Queue">
+            <div class="col-6 col-xl-3">
+                <div class="camp-metric-card accent-crimson h-100 p-3" onclick="switchAdoptTab('adopt-tab-queue')" style="cursor: pointer;" title="Click to view Applications Queue">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="overflow-hidden">
-                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Pending Applications</span>
-                            <div class="fs-4 fw-black lh-1 mt-1 text-white text-break">
-                                KES {{ number_format($metrics['pendingAmount'], 2) }}
+                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1" style="font-size: 10px;">Pending Need</span>
+                            <div class="fs-5 fs-md-4 fw-black lh-1 mt-1 text-white text-break">
+                                KES {{ number_format($metrics['pendingAmount'], 0) }}
                             </div>
                         </div>
-                        <div class="metric-icon-bubble" style="background: rgba(220, 38, 38, 0.12); color: #EF4444; border: 1px solid rgba(220, 38, 38, 0.25);">
+                        <div class="metric-icon-bubble d-none d-sm-flex" style="background: rgba(220, 38, 38, 0.12); color: #EF4444; border: 1px solid rgba(220, 38, 38, 0.25); width: 34px; height: 34px; font-size: 1rem;">
                             <i class="bi bi-hourglass-split"></i>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between small text-muted mt-2">
-                        <span>{{ $metrics['pendingCount'] }} Awaiting Review</span>
+                    <div class="d-flex justify-content-between small text-muted mt-2" style="font-size: 10px;">
+                        <span>{{ $metrics['pendingCount'] }} In Queue</span>
                         @php
                             $poolCoverage = $metrics['pendingAmount'] > 0 ? min(100, round(($metrics['kittyBalance'] / $metrics['pendingAmount']) * 100)) : 100;
                         @endphp
-                        <span class="fw-bold text-danger">{{ $poolCoverage }}% Pool Covered</span>
+                        <span class="fw-bold text-danger">{{ $poolCoverage }}% Covered</span>
                     </div>
 
-                    <div class="mini-meter-track">
+                    <div class="mini-meter-track mt-2">
                         <div class="mini-meter-fill bg-danger" style="width: {{ $poolCoverage }}%;"></div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 small text-muted border-top border-secondary border-opacity-15">
-                        <span class="badge bg-dark border border-secondary text-white-50 px-2 py-1">Action Required</span>
-                        <span class="text-danger fw-semibold">Review Queue &rarr;</span>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 small text-muted border-top border-secondary border-opacity-15" style="font-size: 10px;">
+                        <span class="badge bg-dark border border-secondary text-white-50 px-1 py-0">Action</span>
+                        <span class="text-danger fw-semibold d-none d-sm-inline">Review &rarr;</span>
                     </div>
                 </div>
             </div>
 
             <!-- 4. Revenue Streams Into Kitty -->
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="camp-metric-card accent-dark h-100" onclick="switchAdoptTab('adopt-tab-ledger')" style="cursor: pointer;" title="Click to view Audit Ledger">
+            <div class="col-6 col-xl-3">
+                <div class="camp-metric-card accent-dark h-100 p-3" onclick="switchAdoptTab('adopt-tab-ledger')" style="cursor: pointer;" title="Click to view Audit Ledger">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="overflow-hidden">
-                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1">Funding Sources</span>
-                            <div class="fs-4 fw-black lh-1 mt-1 text-white text-break">
+                            <span class="text-muted small text-uppercase fw-bold letter-spacing-1" style="font-size: 10px;">Inflows Count</span>
+                            <div class="fs-5 fs-md-4 fw-black lh-1 mt-1 text-white text-break">
                                 {{ $metrics['donationsCount'] + $metrics['campaignProfitsCount'] }} Inflows
                             </div>
                         </div>
-                        <div class="metric-icon-bubble" style="background: rgba(255, 255, 255, 0.08); color: #EF4444; border: 1px solid rgba(255, 255, 255, 0.12);">
+                        <div class="metric-icon-bubble d-none d-sm-flex" style="background: rgba(255, 255, 255, 0.08); color: #EF4444; border: 1px solid rgba(255, 255, 255, 0.12); width: 34px; height: 34px; font-size: 1rem;">
                             <i class="bi bi-cash-stack"></i>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between small text-muted mt-2 flex-wrap gap-1">
-                        <span><i class="bi bi-gift-fill me-1 text-danger"></i>{{ $metrics['donationsCount'] }} Church Donations</span>
-                        <span><i class="bi bi-shop me-1 text-white-50"></i>{{ $metrics['campaignProfitsCount'] }} Campaign Batches</span>
+                    <div class="d-flex justify-content-between small text-muted mt-2 flex-wrap gap-1" style="font-size: 10px;">
+                        <span><i class="bi bi-gift-fill text-danger"></i> {{ $metrics['donationsCount'] }} Don</span>
+                        <span><i class="bi bi-shop text-white-50"></i> {{ $metrics['campaignProfitsCount'] }} Batches</span>
                     </div>
 
-                    <div class="mini-meter-track">
+                    <div class="mini-meter-track mt-2">
                         <div class="mini-meter-fill" style="width: 100%; background: linear-gradient(90deg, #DC2626 0%, #991B1B 100%);"></div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 small text-muted border-top border-secondary border-opacity-15">
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Paybill: {{ $mpesaSettings->paybill_number ?? '880100' }}</span>
-                        <span class="text-white-50 fw-semibold">Audit Stream &rarr;</span>
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2 small text-muted border-top border-secondary border-opacity-15" style="font-size: 10px;">
+                        <span class="badge bg-danger-subtle text-danger px-1 py-0">Paybill</span>
+                        <span class="text-white-50 fw-semibold d-none d-sm-inline">Audit &rarr;</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- PORTAL INTERACTIVE TABS -->
-        <div class="camp-tabs-nav">
-            <button type="button" class="camp-tab-link active" id="tabbtn-adopt-queue" onclick="switchAdoptTab('adopt-tab-queue')">
+        <!-- PORTAL INTERACTIVE TABS (Horizontally scrollable swipe strip on mobile) -->
+        <div class="camp-tabs-nav camp-chip-scroll flex-nowrap pb-2 mb-3">
+            <button type="button" class="camp-tab-link active text-nowrap" id="tabbtn-adopt-queue" onclick="switchAdoptTab('adopt-tab-queue')">
                 <i class="bi bi-inbox-fill"></i> Aid Applications Queue
                 @if($metrics['pendingCount'] > 0)
                     <span class="badge bg-danger rounded-pill ms-1">{{ $metrics['pendingCount'] }}</span>
@@ -193,12 +193,12 @@
                 @endif
             </button>
 
-            <button type="button" class="camp-tab-link" id="tabbtn-adopt-matchmaker" onclick="switchAdoptTab('adopt-tab-matchmaker')">
+            <button type="button" class="camp-tab-link text-nowrap" id="tabbtn-adopt-matchmaker" onclick="switchAdoptTab('adopt-tab-matchmaker')">
                 <i class="bi bi-person-heart"></i> Sponsor a Camper (Matchmaker)
                 <span class="badge bg-dark border rounded-pill ms-1">{{ $unsponsoredCampers->count() }}</span>
             </button>
 
-            <button type="button" class="camp-tab-link" id="tabbtn-adopt-ledger" onclick="switchAdoptTab('adopt-tab-ledger')">
+            <button type="button" class="camp-tab-link text-nowrap" id="tabbtn-adopt-ledger" onclick="switchAdoptTab('adopt-tab-ledger')">
                 <i class="bi bi-journal-text"></i> Kitty Financial Audit Ledger
             </button>
         </div>
@@ -239,7 +239,8 @@
                         </form>
                     </div>
 
-                    <div class="table-responsive">
+                    <!-- Desktop Table View -->
+                    <div class="d-none d-md-block table-responsive">
                         <table class="table table-camp align-middle">
                             <thead>
                                 <tr>
@@ -319,6 +320,86 @@
                         </table>
                     </div>
 
+                    <!-- Mobile Card Feed View -->
+                    <div class="d-md-none d-flex flex-column gap-3">
+                        @forelse($requestsList as $req)
+                            <div class="camp-card p-3 border border-secondary border-opacity-25 shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <div>
+                                        <div class="fw-bold text-white fs-6">{{ $req->teen ? $req->teen->name : 'Unknown Camper' }}</div>
+                                        <div class="small text-muted">Parent: <span class="text-white-50">{{ $req->parent ? $req->parent->name : 'Unknown' }}</span></div>
+                                    </div>
+                                    <div>
+                                        @if($req->status === 'approved')
+                                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Approved</span>
+                                        @elseif($req->status === 'approved-awaiting-funds')
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i> Awaiting Funds</span>
+                                        @elseif($req->status === 'denied')
+                                            <span class="badge bg-secondary"><i class="bi bi-x-circle me-1"></i> Denied</span>
+                                        @else
+                                            <span class="badge bg-danger"><i class="bi bi-clock me-1"></i> Pending</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                @if($req->parent?->phone)
+                                    <div class="mb-2 small">
+                                        <a href="tel:{{ $req->parent->phone }}" class="text-decoration-none text-white-50 d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-telephone-fill text-danger small"></i> {{ $req->parent->phone }}
+                                        </a>
+                                    </div>
+                                @endif
+
+                                <div class="row g-2 py-2 my-2 border-top border-bottom border-secondary border-opacity-25 bg-black bg-opacity-25 rounded px-2">
+                                    <div class="col-6">
+                                        <span class="text-muted d-block" style="font-size: 10px;">REQUESTED AID</span>
+                                        <span class="fw-bold text-danger fs-6">KES {{ number_format($req->amount_requested, 0) }}</span>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span class="text-muted d-block" style="font-size: 10px;">CAMP FEE</span>
+                                        <span class="text-white-50 small">KES {{ number_format($season->price, 0) }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-2 rounded bg-dark border border-secondary border-opacity-50 text-white-50 small mb-2" style="font-size: 11px; line-height: 1.4;">
+                                    <strong class="text-white d-block mb-1"><i class="bi bi-chat-quote-fill text-danger me-1"></i> Reason / Hardship:</strong>
+                                    "{{ $req->reason }}"
+                                </div>
+
+                                @if($req->reviewer)
+                                    <div class="small text-muted mb-2" style="font-size: 11px;">
+                                        <i class="bi bi-person-check text-success me-1"></i> Reviewed by {{ $req->reviewer->name }} 
+                                        @if($req->reviewed_at) &bull; {{ $req->reviewed_at->format('M d, Y') }} @endif
+                                        @if($req->decision_notes)
+                                            <div class="text-white-50 fst-italic mt-1">"{{ $req->decision_notes }}"</div>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <div class="pt-2 border-top border-secondary border-opacity-25">
+                                    @if($req->status === 'pending' || $req->status === 'approved-awaiting-funds')
+                                        <button type="button" class="btn btn-camp-red btn-sm w-100 py-2 fw-semibold" 
+                                                onclick="openReviewModal({{ $req->id }}, '{{ addslashes($req->teen?->name ?? 'Camper') }}', {{ $req->amount_requested }}, '{{ addslashes($req->reason) }}')"
+                                                style="min-height: 44px;">
+                                            <i class="bi bi-shield-check me-1"></i> Review Decision
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn btn-outline-secondary btn-sm w-100 py-2" 
+                                                onclick="openReviewModal({{ $req->id }}, '{{ addslashes($req->teen?->name ?? 'Camper') }}', {{ $req->amount_requested }}, '{{ addslashes($req->reason) }}')"
+                                                style="min-height: 44px;">
+                                            <i class="bi bi-eye me-1"></i> View Details
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-4 text-muted camp-card">
+                                <i class="bi bi-inbox fs-2 d-block mb-2 text-muted opacity-50"></i>
+                                No sponsorship applications match the criteria.
+                            </div>
+                        @endforelse
+                    </div>
+
                     <div class="mt-3">
                         {{ $requestsList->links() }}
                     </div>
@@ -336,12 +417,13 @@
                             <p class="text-muted small mb-0">Campers with remaining camp fees. Allocate funds directly from the Kitty pool or an external church sponsor.</p>
                         </div>
 
-                        <div class="badge bg-danger-subtle text-danger border border-danger px-3 py-2">
+                        <div class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 text-center text-md-start">
                             Kitty Balance Available: <strong>KES {{ number_format($metrics['kittyBalance'], 2) }}</strong>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
+                    <!-- Desktop Table View -->
+                    <div class="d-none d-md-block table-responsive">
                         <table class="table table-camp align-middle">
                             <thead>
                                 <tr>
@@ -407,6 +489,72 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Mobile Card Feed View -->
+                    <div class="d-md-none d-flex flex-column gap-3">
+                        @forelse($unsponsoredCampers as $campReg)
+                            <div class="camp-card p-3 border border-secondary border-opacity-25 shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <div>
+                                        <div class="fw-bold text-white fs-6">{{ $campReg->teen->name }}</div>
+                                        @if($campReg->teen->email)
+                                            <div class="small text-muted">{{ $campReg->teen->email }}</div>
+                                        @endif
+                                    </div>
+                                    <span class="badge bg-{{ $campReg->teen->gender === 'male' ? 'info text-dark' : 'danger' }} text-capitalize">
+                                        {{ $campReg->teen->gender ?: 'N/A' }}
+                                    </span>
+                                </div>
+
+                                @if($parent = $campReg->teen->parents->first())
+                                    <div class="small text-muted mb-2">
+                                        <span>Parent: <strong class="text-white-50">{{ $parent->name }}</strong></span>
+                                        @if($parent->phone)
+                                            <span class="ms-1">&bull; <a href="tel:{{ $parent->phone }}" class="text-decoration-none text-white-50"><i class="bi bi-telephone-fill text-danger small"></i> {{ $parent->phone }}</a></span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <div class="small text-muted mb-2">Desk Intake Walk-up</div>
+                                @endif
+
+                                <div class="row g-2 py-2 my-2 border-top border-bottom border-secondary border-opacity-25 bg-black bg-opacity-25 rounded px-2">
+                                    <div class="col-6">
+                                        <span class="text-muted d-block" style="font-size: 10px;">BALANCE DUE</span>
+                                        <span class="fw-bold text-danger fs-6">KES {{ number_format($campReg->balance_remaining, 0) }}</span>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span class="text-muted d-block" style="font-size: 10px;">PAID SO FAR</span>
+                                        <span class="fw-bold text-success fs-6">KES {{ number_format($campReg->total_paid, 0) }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between small text-muted mb-1" style="font-size: 11px;">
+                                        <span>Progress: {{ $campReg->payment_percent }}%</span>
+                                        <span class="fw-semibold {{ $campReg->balance_remaining <= 0 ? 'text-success' : 'text-danger' }}">
+                                            {{ $campReg->balance_remaining <= 0 ? 'Fully Paid' : 'Fee Pending' }}
+                                        </span>
+                                    </div>
+                                    <div class="camp-progress" style="height: 6px;">
+                                        <div class="camp-progress-bar" style="width: {{ $campReg->payment_percent }}%;"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <button type="button" class="btn btn-camp-red btn-sm w-100 py-2 fw-semibold" 
+                                            onclick="openDirectSponsorModal({{ $campReg->id }}, '{{ addslashes($campReg->teen->name) }}', {{ $campReg->balance_remaining }})"
+                                            style="min-height: 44px;">
+                                        <i class="bi bi-heart-fill me-1"></i> Sponsor Camper
+                                    </button>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-4 text-muted camp-card">
+                                <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-2"></i>
+                                All registered campers for this season have their fees fully paid!
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
 
@@ -421,32 +569,35 @@
                             <p class="text-muted small mb-0">Immutable, audit-ready financial trail of all donations, campaign profits, and disbursements.</p>
                         </div>
 
-                        <!-- Type Filters -->
-                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                            <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'all']) }}" 
-                               class="camp-filter-chip {{ ($filters['ledger_type'] ?? 'all') === 'all' ? 'active' : '' }}">
-                                All ({{ $metrics['totalKittyIn'] + $metrics['totalKittyOut'] > 0 ? $ledger->total() : 0 }})
-                            </a>
-                            <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'donation_in']) }}" 
-                               class="camp-filter-chip {{ ($filters['ledger_type'] ?? '') === 'donation_in' ? 'active' : '' }}">
-                                Church Donations In
-                            </a>
-                            <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'campaign_profit_in']) }}" 
-                               class="camp-filter-chip {{ ($filters['ledger_type'] ?? '') === 'campaign_profit_in' ? 'active' : '' }}">
-                                Campaign Profits In
-                            </a>
-                            <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'adopt_out']) }}" 
-                               class="camp-filter-chip {{ ($filters['ledger_type'] ?? '') === 'adopt_out' ? 'active' : '' }}">
-                                Sponsorships Out
-                            </a>
-
-                            <button type="button" class="btn btn-camp-red btn-sm ms-md-2" data-bs-toggle="modal" data-bs-target="#adoptDonationModal">
+                        <div class="d-flex gap-2 align-items-center w-100 w-md-auto justify-content-between justify-content-md-end">
+                            <button type="button" class="btn btn-camp-red btn-sm flex-fill flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#adoptDonationModal" style="min-height: 38px;">
                                 <i class="bi bi-plus-lg me-1"></i> Add Donation
                             </button>
                         </div>
                     </div>
 
-                    <div class="table-responsive">
+                    <!-- Swipeable Type Filter Chips -->
+                    <div class="camp-chip-scroll flex-nowrap pb-2 mb-3">
+                        <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'all']) }}" 
+                           class="camp-filter-chip text-nowrap {{ ($filters['ledger_type'] ?? 'all') === 'all' ? 'active' : '' }}">
+                            All ({{ $metrics['totalKittyIn'] + $metrics['totalKittyOut'] > 0 ? $ledger->total() : 0 }})
+                        </a>
+                        <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'donation_in']) }}" 
+                           class="camp-filter-chip text-nowrap {{ ($filters['ledger_type'] ?? '') === 'donation_in' ? 'active' : '' }}">
+                            Church Donations In
+                        </a>
+                        <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'campaign_profit_in']) }}" 
+                           class="camp-filter-chip text-nowrap {{ ($filters['ledger_type'] ?? '') === 'campaign_profit_in' ? 'active' : '' }}">
+                            Campaign Profits In
+                        </a>
+                        <a href="{{ route('backoffice.adopt.index', ['tab' => 'adopt-tab-ledger', 'ledger_type' => 'adopt_out']) }}" 
+                           class="camp-filter-chip text-nowrap {{ ($filters['ledger_type'] ?? '') === 'adopt_out' ? 'active' : '' }}">
+                            Sponsorships Out
+                        </a>
+                    </div>
+
+                    <!-- Desktop Table View -->
+                    <div class="d-none d-md-block table-responsive">
                         <table class="table table-camp align-middle">
                             <thead>
                                 <tr>
@@ -513,6 +664,69 @@
                                 @endforelse
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Mobile Card Feed View -->
+                    <div class="d-md-none d-flex flex-column gap-3">
+                        @forelse($ledger as $item)
+                            <div class="camp-card p-3 border border-secondary border-opacity-25 shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <div>
+                                        @if($item->type === 'donation_in')
+                                            <span class="badge bg-success"><i class="bi bi-arrow-down-left me-1"></i> Donation In</span>
+                                        @elseif($item->type === 'campaign_profit_in')
+                                            <span class="badge bg-primary"><i class="bi bi-bag-check me-1"></i> Campaign Profit</span>
+                                        @else
+                                            <span class="badge bg-danger"><i class="bi bi-arrow-up-right me-1"></i> Adopt Out</span>
+                                        @endif
+                                    </div>
+                                    <div class="small text-muted" style="font-size: 11px;">
+                                        {{ $item->created_at ? $item->created_at->format('M d, H:i') : '' }}
+                                    </div>
+                                </div>
+
+                                <div class="row g-2 py-2 my-2 border-top border-bottom border-secondary border-opacity-25 bg-black bg-opacity-25 rounded px-2">
+                                    <div class="col-6">
+                                        <span class="text-muted d-block" style="font-size: 10px;">AMOUNT</span>
+                                        <span class="fw-bold {{ $item->type === 'adopt_out' ? 'text-danger' : 'text-success' }} fs-6">
+                                            {{ $item->type === 'adopt_out' ? '-' : '+' }}KES {{ number_format($item->amount, 0) }}
+                                        </span>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span class="text-muted d-block" style="font-size: 10px;">BALANCE AFTER</span>
+                                        <span class="fw-bold text-white small">KES {{ number_format($item->balance_after, 0) }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="small text-white mb-2">
+                                    {{ $item->description }}
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top border-secondary border-opacity-25 small" style="font-size: 11px;">
+                                    <div>
+                                        @if($item->reference)
+                                            <code class="fw-bold copy-badge px-2 py-1 rounded bg-black border border-secondary" onclick="navigator.clipboard.writeText('{{ $item->reference }}'); alert('Copied reference: {{ $item->reference }}')" title="Click to copy">
+                                                {{ $item->reference }}
+                                            </code>
+                                        @else
+                                            <span class="text-muted">Auto-Ref</span>
+                                        @endif
+                                    </div>
+
+                                    <div>
+                                        @if($item->receipt)
+                                            <a href="{{ route('receipts.show', $item->receipt->receipt_number) }}" target="_blank" class="badge bg-dark border text-decoration-none py-1 px-2">
+                                                <i class="bi bi-receipt me-1"></i> #{{ $item->receipt->receipt_number }}
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-4 text-muted camp-card">
+                                No Kitty ledger entries found.
+                            </div>
+                        @endforelse
                     </div>
 
                     <div class="mt-3">
