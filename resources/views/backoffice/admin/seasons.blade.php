@@ -4,12 +4,12 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between mb-4 gap-3">
         <div>
-            <h3 class="fw-bold mb-0">Camp Season Lifecycle</h3>
-            <p class="text-muted small mb-0">Manage camp years, pricing, capacity, dates, venue, and public landing page content.</p>
+            <h3 class="fw-bold mb-1 text-white">Camp Season Lifecycle</h3>
+            <p class="text-white-50 small mb-0">Manage camp years, pricing, capacity, dates, venue, and public landing page content.</p>
         </div>
-        <button type="button" class="btn btn-camp-red btn-sm" data-bs-toggle="modal" data-bs-target="#createSeasonModal">
+        <button type="button" class="btn btn-camp-red btn-sm align-self-start align-self-sm-center" data-bs-toggle="modal" data-bs-target="#createSeasonModal">
             <i class="bi bi-calendar-plus me-1"></i> Create New Camp Season
         </button>
     </div>
