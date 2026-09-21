@@ -110,8 +110,24 @@
                         $topNavNotifs = $topNavNotifs ?? collect();
                     @endphp
 
-                    <!-- Notification Bar & Dropdown -->
-                    <div class="dropdown" id="camp-notifications-dropdown">
+                    <!-- Mobile Notification Button (triggers bottom sheet on < 768px) -->
+                    <button class="btn btn-outline-secondary btn-sm rounded-circle position-relative border-secondary text-white p-0 d-md-none" 
+                            type="button" 
+                            data-bs-toggle="offcanvas" 
+                            data-bs-target="#mobileNotificationsSheet" 
+                            aria-controls="mobileNotificationsSheet" 
+                            title="Live System Notifications" 
+                            style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-bell-fill"></i>
+                        @if($unreadNotifsCount > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-dark" id="nav-notif-count" style="font-size: 10px;">
+                                {{ $unreadNotifsCount > 9 ? '9+' : $unreadNotifsCount }}
+                            </span>
+                        @endif
+                    </button>
+
+                    <!-- Desktop Notification Bar & Dropdown (>= 768px) -->
+                    <div class="dropdown d-none d-md-inline-block" id="camp-notifications-dropdown">
                         <button class="btn btn-outline-secondary btn-sm rounded-circle position-relative border-secondary text-white p-0 dropdown-toggle no-caret" 
                                 type="button" id="campNotifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" 
                                 title="System Activity & Notifications" style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
@@ -122,8 +138,8 @@
                                 </span>
                             @endif
                         </button>
-                        <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border border-danger-subtle bg-dark" style="width: 360px; max-width: 92vw; z-index: 1060;">
-                            <div class="p-3 border-bottom border-secondary d-flex align-items-center justify-content-between">
+                        <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border border-secondary border-opacity-50 bg-dark" style="width: 380px; max-width: 92vw; z-index: 1060; border-radius: 12px; overflow: hidden;">
+                            <div class="p-3 border-bottom border-secondary border-opacity-30 d-flex align-items-center justify-content-between bg-black">
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-bell-fill text-danger"></i>
                                     <span class="fw-bold text-white small text-uppercase tracking-wider">Live System Activity</span>
@@ -138,22 +154,22 @@
                                     </form>
                                 @endif
                             </div>
-                            <div class="list-group list-group-flush overflow-auto" id="backofficeNotifsContainer" style="max-height: 330px;">
+                            <div class="list-group list-group-flush overflow-auto" id="backofficeNotifsContainer" style="max-height: 340px;">
                                 @forelse($topNavNotifs as $n)
-                                    <div class="list-group-item list-group-item-action notif-clickable-item bg-dark text-white border-secondary p-2 px-3 {{ !$n->is_read ? 'border-start border-3 border-danger' : 'opacity-75' }}"
+                                    <div class="list-group-item list-group-item-action notif-clickable-item bg-dark text-white border-secondary border-opacity-20 p-3 {{ !$n->is_read ? 'border-start border-3 border-danger' : 'opacity-75' }}"
                                          data-notif-id="{{ $n->id }}"
                                          data-is-read="{{ $n->is_read ? '1' : '0' }}"
                                          data-read-url="{{ route('backoffice.notifications.read', $n->id) }}"
                                          data-target-link="{{ $n->link ?: '' }}"
-                                         style="cursor: pointer;">
+                                         style="cursor: pointer; background: {{ !$n->is_read ? 'rgba(220, 38, 38, 0.05)' : 'transparent' }};">
                                         <div class="d-flex align-items-start gap-2">
                                             <i class="bi {{ $n->icon_class }} fs-5 mt-1 text-danger"></i>
                                             <div class="flex-grow-1 overflow-hidden">
-                                                <div class="d-flex justify-content-between align-items-baseline">
+                                                <div class="d-flex justify-content-between align-items-baseline mb-1">
                                                     <strong class="small text-white text-truncate notif-title {{ !$n->is_read ? 'text-danger' : '' }}">{{ $n->title }}</strong>
                                                     <small class="text-white-50 ms-1 flex-shrink-0" style="font-size: 10px;">{{ $n->created_at ? $n->created_at->diffForHumans(null, true) : 'Just now' }}</small>
                                                 </div>
-                                                <p class="mb-1 text-white-50 small" style="font-size: 11px; line-height: 1.3;">{{ $n->message }}</p>
+                                                <p class="mb-1 text-white-50 small" style="font-size: 11px; line-height: 1.35;">{{ $n->message }}</p>
                                                 @if($n->link)
                                                     <a href="{{ $n->link }}" class="badge bg-danger-subtle text-danger border border-danger text-decoration-none py-1 px-2" style="font-size: 10px;">
                                                         View Record &rarr;
@@ -169,7 +185,7 @@
                                     </div>
                                 @endforelse
                             </div>
-                            <div class="p-2 text-center border-top border-secondary">
+                            <div class="p-2 text-center border-top border-secondary border-opacity-30 bg-black">
                                 <a href="{{ route('backoffice.notifications.index') }}" class="btn btn-sm btn-outline-danger w-100" style="font-size: 11px;">
                                     View Complete Notification Log &rarr;
                                 </a>
@@ -262,6 +278,112 @@
             $sidebarSeasonId = session('admin_selected_season_id') ?? \App\Models\CampSeason::getActive()?->id;
             $sidebarPendingAid = $sidebarSeasonId ? \App\Models\AdoptATeenRequest::where('camp_season_id', $sidebarSeasonId)->where('status', 'pending')->count() : 0;
         @endphp
+
+        <!-- ══════════════════════════════════════════════════════════
+             MOBILE NOTIFICATIONS OFF-CANVAS SHEET (< 768px)
+        ══════════════════════════════════════════════════════════ -->
+        <div class="offcanvas offcanvas-bottom bg-dark text-white border-top border-danger border-opacity-50 d-md-none" 
+             tabindex="-1" 
+             id="mobileNotificationsSheet" 
+             aria-labelledby="mobileNotificationsSheetLabel"
+             style="height: 75vh; max-height: 85vh; border-top-left-radius: 20px; border-top-right-radius: 20px; background: #141418 !important; z-index: 1070;">
+            
+            <!-- Drag Handle -->
+            <div class="d-flex justify-content-center pt-2 pb-1">
+                <div style="width: 42px; height: 5px; background: rgba(255,255,255,0.25); border-radius: 3px;"></div>
+            </div>
+
+            <!-- Sheet Header -->
+            <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom border-secondary border-opacity-25">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(220, 38, 38, 0.15); color: #EF4444;">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 text-white" id="mobileNotificationsSheetLabel">Notifications</h6>
+                        <small class="text-white-50" style="font-size: 10px;">Live System Feed</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    @if($unreadNotifsCount > 0)
+                        <form action="{{ route('backoffice.notifications.read-all') }}" method="POST" class="m-0 form-mark-all-read">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-secondary btn-sm py-1 px-2 text-white-50" style="font-size: 11px;">
+                                <i class="bi bi-check2-all me-1 text-success"></i> Mark read
+                            </button>
+                        </form>
+                    @endif
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <!-- Sheet Body with Notifications List -->
+            <div class="offcanvas-body p-3 overflow-y-auto">
+                <div class="d-flex flex-column gap-2" id="mobileNotifsContainer">
+                    @forelse($topNavNotifs as $n)
+                        <div class="notif-clickable-item p-3 rounded position-relative {{ !$n->is_read ? 'border border-danger border-opacity-50' : 'border border-secondary border-opacity-20 opacity-75' }}"
+                             data-notif-id="{{ $n->id }}"
+                             data-is-read="{{ $n->is_read ? '1' : '0' }}"
+                             data-read-url="{{ route('backoffice.notifications.read', $n->id) }}"
+                             data-target-link="{{ $n->link ?: '' }}"
+                             style="background: {{ !$n->is_read ? 'rgba(220, 38, 38, 0.08)' : 'rgba(255, 255, 255, 0.02)' }}; cursor: pointer; transition: all 0.2s ease;">
+                            
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon Bubble -->
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1" 
+                                     style="width: 36px; height: 36px; background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                    <i class="bi {{ $n->icon_class }} fs-5"></i>
+                                </div>
+
+                                <!-- Details -->
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                        <div class="fw-bold text-white text-truncate notif-title {{ !$n->is_read ? 'text-danger' : '' }}" style="font-size: 0.92rem;">
+                                            {{ $n->title }}
+                                        </div>
+                                        <small class="text-white-50 ms-2 flex-shrink-0" style="font-size: 11px;">
+                                            {{ $n->created_at ? $n->created_at->diffForHumans(null, true) : 'Just now' }}
+                                        </small>
+                                    </div>
+
+                                    <p class="mb-2 text-white-50" style="font-size: 0.82rem; line-height: 1.35;">
+                                        {{ $n->message }}
+                                    </p>
+
+                                    @if($n->link)
+                                        <a href="{{ $n->link }}" class="btn btn-outline-danger btn-sm py-1 px-3 d-inline-flex align-items-center gap-1" style="font-size: 11px; border-radius: 6px;">
+                                            <span>View Details</span>
+                                            <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    @endif
+                                </div>
+
+                                @if(!$n->is_read)
+                                    <span class="position-absolute top-0 end-0 m-2 p-1 bg-danger border border-dark rounded-circle" title="Unread"></span>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-4 text-center text-white-50">
+                            <div class="rounded-circle bg-dark d-inline-flex align-items-center justify-content-center mb-2" style="width: 48px; height: 48px;">
+                                <i class="bi bi-check2-circle fs-3 text-success"></i>
+                            </div>
+                            <div class="fw-bold text-white">All Caught Up!</div>
+                            <div class="small">No recent notifications. System is running smoothly.</div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Sheet Footer -->
+            <div class="p-3 border-top border-secondary border-opacity-25 bg-black d-flex gap-2">
+                <a href="{{ route('backoffice.notifications.index') }}" class="btn btn-outline-danger btn-sm flex-grow-1 d-flex align-items-center justify-content-center gap-1">
+                    <i class="bi bi-list-ul"></i>
+                    <span>Full Notification History</span>
+                </a>
+                <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="offcanvas">Close</button>
+            </div>
+        </div>
 
         <!-- ══════════════════════════════════════════════════════════
              MOBILE OFFCANVAS SIDEBAR DRAWER (< 768px)
