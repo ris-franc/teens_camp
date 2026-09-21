@@ -4,12 +4,12 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4 gap-3">
         <div>
-            <h3 class="fw-bold mb-0">User &amp; Access Rights</h3>
+            <h3 class="fw-bold mb-0 text-white">User &amp; Access Rights</h3>
             <p class="text-muted small mb-0">Manage camp accounts across all roles. Edit profiles, reset PINs, or add new users.</p>
         </div>
-        <button type="button" class="btn btn-camp-red btn-sm" data-bs-toggle="modal" data-bs-target="#createUserModal">
+        <button type="button" class="btn btn-camp-red btn-sm w-100 w-sm-auto py-2 px-3 fw-semibold text-nowrap" data-bs-toggle="modal" data-bs-target="#createUserModal" style="min-height: 44px;">
             <i class="bi bi-person-plus-fill me-1"></i> Add User
         </button>
     </div>
@@ -33,14 +33,14 @@
     {{-- Filters & Search --}}
     <div class="camp-card p-3 mb-4">
         <form action="{{ route('backoffice.admin.users') }}" method="GET" class="row g-2 align-items-center">
-            <div class="col-md-5">
+            <div class="col-12 col-md-5">
                 <div class="input-group">
-                    <span class="input-group-text bg-transparent text-danger"><i class="bi bi-search"></i></span>
-                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" placeholder="Search by name, email or phone...">
+                    <span class="input-group-text bg-transparent text-danger border-secondary"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-secondary" name="search" value="{{ request('search') }}" placeholder="Search by name, email or phone...">
                 </div>
             </div>
-            <div class="col-md-4">
-                <select class="form-select" name="role" onchange="this.form.submit()">
+            <div class="col-12 col-md-4">
+                <select class="form-select border-secondary" name="role" onchange="this.form.submit()">
                     <option value="">All Roles</option>
                     <option value="teen"          {{ request('role') === 'teen'          ? 'selected' : '' }}>Teen</option>
                     <option value="parent"        {{ request('role') === 'parent'        ? 'selected' : '' }}>Parent</option>
@@ -51,16 +51,17 @@
                     <option value="campaign_head" {{ request('role') === 'campaign_head' ? 'selected' : '' }}>Campaign Team Head</option>
                 </select>
             </div>
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-camp-dark btn-sm flex-fill">Filter</button>
-                <a href="{{ route('backoffice.admin.users') }}" class="btn btn-link btn-sm text-danger text-decoration-none">Reset</a>
+            <div class="col-12 col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-camp-dark btn-sm flex-fill py-2" style="min-height: 38px;">Filter</button>
+                <a href="{{ route('backoffice.admin.users') }}" class="btn btn-outline-secondary btn-sm px-3 d-inline-flex align-items-center justify-content-center text-decoration-none" style="min-height: 38px;">Reset</a>
             </div>
         </form>
     </div>
 
-    {{-- User Table --}}
+    {{-- User Table (Desktop) & Cards (Mobile) --}}
     <div class="camp-card p-0 overflow-hidden">
-        <div class="table-responsive">
+        <!-- Desktop Table View -->
+        <div class="d-none d-md-block table-responsive">
             <table class="table table-camp align-middle mb-0">
                 <thead class="border-bottom border-secondary border-opacity-25">
                     <tr>
@@ -187,6 +188,121 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card Feed View -->
+        <div class="d-md-none p-3 d-flex flex-column gap-3">
+            @forelse($users as $u)
+                <div class="camp-card p-3 border border-secondary border-opacity-25 shadow-sm" id="user-card-{{ $u->id }}">
+                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            @if($u->avatar)
+                                <img src="{{ asset('storage/' . $u->avatar) }}" class="rounded-circle border flex-shrink-0" width="38" height="38" alt="Avatar">
+                            @else
+                                <span class="rounded-circle text-white d-inline-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                      style="width:38px;height:38px;font-size:14px;background:{{ $u->isStaff() ? '#B91C1C' : '#374151' }}">
+                                    {{ strtoupper(substr($u->name, 0, 1)) }}
+                                </span>
+                            @endif
+                            <div class="overflow-hidden">
+                                <div class="fw-bold text-white fs-6 text-truncate">{{ $u->name }}</div>
+                                <div class="small text-muted text-truncate">{{ $u->email }}</div>
+                            </div>
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <span class="badge text-uppercase fw-semibold
+                                {{ $u->isAdmin() ? 'bg-danger' :
+                                   ($u->isPastor() ? 'bg-purple' :
+                                   ($u->isStaff() ? 'bg-dark border border-danger text-danger' : 'bg-secondary')) }}">
+                                {{ str_replace('_', ' ', $u->role) }}
+                            </span>
+                            @if($u->is_suspended)
+                                <div class="mt-1"><span class="badge bg-danger" style="font-size: 10px;">Suspended</span></div>
+                            @endif
+                        </div>
+                    </div>
+
+                    @if($u->phone)
+                        <div class="small mb-2">
+                            <a href="tel:{{ $u->phone }}" class="text-decoration-none text-white-50 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-telephone-fill text-danger small"></i> {{ $u->phone }}
+                            </a>
+                        </div>
+                    @endif
+
+                    <div class="row g-2 py-2 my-2 border-top border-bottom border-secondary border-opacity-25 bg-black bg-opacity-25 rounded px-2 small">
+                        <div class="col-6">
+                            <span class="text-muted d-block" style="font-size: 10px;">GENDER / DOB</span>
+                            <div class="text-white-50 mt-1">
+                                @if($u->gender)
+                                    <span class="badge {{ $u->gender === 'male' ? 'bg-primary' : 'bg-pink' }} text-capitalize px-1 py-0 me-1">{{ $u->gender }}</span>
+                                @endif
+                                {{ $u->date_of_birth ? $u->date_of_birth->format('M d, Y') : '—' }}
+                            </div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-muted d-block" style="font-size: 10px;">PIN STATUS</span>
+                            <div class="mt-1">
+                                @if($u->pin_reset_required)
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i> Reset Pending</span>
+                                @else
+                                    <span class="badge bg-success"><i class="bi bi-shield-check me-1"></i> Active PIN</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between small text-muted mb-3 px-1">
+                        <span>Registrations: <strong class="text-white">{{ $u->registrations_count }}</strong></span>
+                        <span>ID #{{ $u->id }}</span>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap pt-2 border-top border-secondary border-opacity-25">
+                        {{-- Edit Button --}}
+                        <button type="button" class="btn btn-outline-info btn-sm flex-fill py-2"
+                                data-bs-toggle="modal" data-bs-target="#editUserModal{{ $u->id }}"
+                                style="min-height: 42px;">
+                            <i class="bi bi-pencil-fill me-1"></i> Edit
+                        </button>
+
+                        {{-- Reset PIN --}}
+                        <form action="{{ route('backoffice.admin.users.reset-pin', $u) }}" method="POST" class="flex-fill"
+                              onsubmit="return confirm('Reset PIN for {{ $u->name }} to 0000?')">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-secondary btn-sm w-100 py-2" style="min-height: 42px;">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset PIN
+                            </button>
+                        </form>
+
+                        @if(auth()->guard('staff')->id() !== $u->id)
+                            {{-- Suspend / Reactivate --}}
+                            <form action="{{ route('backoffice.admin.users.toggle-suspension', $u) }}" method="POST" class="flex-fill"
+                                  onsubmit="return confirm('Are you sure you want to {{ $u->is_suspended ? 'reactivate' : 'suspend' }} account for {{ $u->name }}?')">
+                                @csrf
+                                <button type="submit" class="btn {{ $u->is_suspended ? 'btn-outline-success' : 'btn-outline-warning' }} btn-sm w-100 py-2" style="min-height: 42px;">
+                                    <i class="bi {{ $u->is_suspended ? 'bi-person-check-fill' : 'bi-slash-circle' }} me-1"></i>
+                                    {{ $u->is_suspended ? 'Reactivate' : 'Suspend' }}
+                                </button>
+                            </form>
+
+                            {{-- Delete --}}
+                            <form action="{{ route('backoffice.admin.users.delete', $u) }}" method="POST"
+                                  onsubmit="return confirm('Are you sure you want to PERMANENTLY delete user {{ $u->name }} ({{ $u->email }})?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm py-2 px-3" style="min-height: 42px;" title="Delete Permanently">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="text-center text-muted py-4 camp-card">
+                    <i class="bi bi-people fs-3 d-block mb-2 opacity-25"></i>
+                    No users found matching your criteria.
+                </div>
+            @endforelse
         </div>
 
         @if($users->hasPages())
