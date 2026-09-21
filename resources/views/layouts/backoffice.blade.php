@@ -80,24 +80,24 @@
                 @endif
 
                 @if($currentSeason)
-                    <div class="countdown-box d-none d-xl-inline-flex py-1 px-2" id="camp-countdown" title="Days until {{ $currentSeason->name }}">
+                    <div class="countdown-box d-none d-lg-inline-flex py-1 px-2" id="camp-countdown" title="Days until {{ $currentSeason->name }}">
                         <div class="countdown-unit">
-                            <span class="countdown-val" id="camp-cd-days" style="font-size: 0.95rem;">00</span>
+                            <span class="countdown-val camp-cd-days" id="camp-cd-days" style="font-size: 0.95rem;">00</span>
                             <span class="countdown-label">D</span>
                         </div>
                         <span class="countdown-sep">:</span>
                         <div class="countdown-unit">
-                            <span class="countdown-val" id="camp-cd-hours" style="font-size: 0.95rem;">00</span>
+                            <span class="countdown-val camp-cd-hours" id="camp-cd-hours" style="font-size: 0.95rem;">00</span>
                             <span class="countdown-label">H</span>
                         </div>
                         <span class="countdown-sep">:</span>
                         <div class="countdown-unit">
-                            <span class="countdown-val" id="camp-cd-mins" style="font-size: 0.95rem;">00</span>
+                            <span class="countdown-val camp-cd-mins" id="camp-cd-mins" style="font-size: 0.95rem;">00</span>
                             <span class="countdown-label">M</span>
                         </div>
                         <span class="countdown-sep">:</span>
                         <div class="countdown-unit">
-                            <span class="countdown-val" id="camp-cd-secs" style="font-size: 0.95rem;">00</span>
+                            <span class="countdown-val camp-cd-secs" id="camp-cd-secs" style="font-size: 0.95rem;">00</span>
                             <span class="countdown-label">S</span>
                         </div>
                     </div>
@@ -225,6 +225,37 @@
         </div>
     </header>
 
+    @if($currentSeason)
+        <!-- Mobile Live Countdown Bar (< 992px) -->
+        <div class="camp-mobile-countdown-strip d-lg-none bg-black border-bottom border-danger border-opacity-25 px-3 py-1 d-flex align-items-center justify-content-between" style="box-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+            <div class="d-flex align-items-center gap-1 small">
+                <i class="bi bi-clock-history text-danger"></i>
+                <span class="text-white-50 text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">{{ $currentSeason->name }}:</span>
+            </div>
+            <div class="countdown-box py-0 px-2" style="background: rgba(220, 38, 38, 0.12); border: 1px solid rgba(220, 38, 38, 0.35); border-radius: 8px;">
+                <div class="countdown-unit">
+                    <span class="countdown-val camp-cd-days" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                    <span class="countdown-label text-danger" style="font-size: 8px; font-weight: 800;">D</span>
+                </div>
+                <span class="countdown-sep text-danger" style="font-size: 0.85rem; font-weight: 700;">:</span>
+                <div class="countdown-unit">
+                    <span class="countdown-val camp-cd-hours" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                    <span class="countdown-label text-danger" style="font-size: 8px; font-weight: 800;">H</span>
+                </div>
+                <span class="countdown-sep text-danger" style="font-size: 0.85rem; font-weight: 700;">:</span>
+                <div class="countdown-unit">
+                    <span class="countdown-val camp-cd-mins" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                    <span class="countdown-label text-danger" style="font-size: 8px; font-weight: 800;">M</span>
+                </div>
+                <span class="countdown-sep text-danger" style="font-size: 0.85rem; font-weight: 700;">:</span>
+                <div class="countdown-unit">
+                    <span class="countdown-val camp-cd-secs" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                    <span class="countdown-label text-danger" style="font-size: 8px; font-weight: 800;">S</span>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @auth('staff')
         @php 
             $staff = Auth::guard('staff')->user(); 
@@ -268,6 +299,37 @@
                         <i class="bi bi-moon-stars-fill"></i>
                     </button>
                 </div>
+
+                @if($currentSeason)
+                    <!-- Mobile Drawer Countdown Widget -->
+                    <div class="p-2 mb-3 rounded d-flex align-items-center justify-content-between" style="background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.25);">
+                        <div class="small">
+                            <div class="text-white-50 text-uppercase fw-bold" style="font-size: 9px; letter-spacing: 0.5px;">Live Countdown</div>
+                            <div class="text-danger fw-bold small">{{ $currentSeason->name }}</div>
+                        </div>
+                        <div class="countdown-box py-0 px-2" style="background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(220, 38, 38, 0.4); border-radius: 8px;">
+                            <div class="countdown-unit">
+                                <span class="countdown-val camp-cd-days" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                                <span class="countdown-label text-danger" style="font-size: 7px; font-weight: 800;">D</span>
+                            </div>
+                            <span class="countdown-sep text-danger" style="font-size: 0.85rem; font-weight: 700;">:</span>
+                            <div class="countdown-unit">
+                                <span class="countdown-val camp-cd-hours" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                                <span class="countdown-label text-danger" style="font-size: 7px; font-weight: 800;">H</span>
+                            </div>
+                            <span class="countdown-sep text-danger" style="font-size: 0.85rem; font-weight: 700;">:</span>
+                            <div class="countdown-unit">
+                                <span class="countdown-val camp-cd-mins" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                                <span class="countdown-label text-danger" style="font-size: 7px; font-weight: 800;">M</span>
+                            </div>
+                            <span class="countdown-sep text-danger" style="font-size: 0.85rem; font-weight: 700;">:</span>
+                            <div class="countdown-unit">
+                                <span class="countdown-val camp-cd-secs" style="font-size: 0.85rem; color: #FFF; font-weight: 700;">00</span>
+                                <span class="countdown-label text-danger" style="font-size: 7px; font-weight: 800;">S</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- Navigation Tree -->
                 <div class="nav flex-column gap-1">

@@ -42,32 +42,24 @@
             const now = new Date().getTime();
             const diff = target - now;
 
-            const daysEl = document.getElementById('camp-cd-days');
-            const hoursEl = document.getElementById('camp-cd-hours');
-            const minsEl = document.getElementById('camp-cd-mins');
-            const secsEl = document.getElementById('camp-cd-secs');
+            const days = diff <= 0 ? 0 : Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = diff <= 0 ? 0 : Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = diff <= 0 ? 0 : Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = diff <= 0 ? 0 : Math.floor((diff % (1000 * 60)) / 1000);
 
-            if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+            const dStr = String(days).padStart(2, '0');
+            const hStr = String(hours).padStart(2, '0');
+            const mStr = String(mins).padStart(2, '0');
+            const sStr = String(secs).padStart(2, '0');
+
+            document.querySelectorAll('.camp-cd-days, #camp-cd-days').forEach(el => el.textContent = dStr);
+            document.querySelectorAll('.camp-cd-hours, #camp-cd-hours').forEach(el => el.textContent = hStr);
+            document.querySelectorAll('.camp-cd-mins, #camp-cd-mins').forEach(el => el.textContent = mStr);
+            document.querySelectorAll('.camp-cd-secs, #camp-cd-secs').forEach(el => el.textContent = sStr);
 
             if (diff <= 0) {
-                daysEl.textContent = '00';
-                hoursEl.textContent = '00';
-                minsEl.textContent = '00';
-                secsEl.textContent = '00';
-                const statusEl = document.getElementById('camp-cd-status');
-                if (statusEl) statusEl.textContent = 'Camp is Live!';
-                return;
+                document.querySelectorAll('.camp-cd-status, #camp-cd-status').forEach(el => el.textContent = 'Camp is Live!');
             }
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-            daysEl.textContent = String(days).padStart(2, '0');
-            hoursEl.textContent = String(hours).padStart(2, '0');
-            minsEl.textContent = String(mins).padStart(2, '0');
-            secsEl.textContent = String(secs).padStart(2, '0');
         }
 
         update();
