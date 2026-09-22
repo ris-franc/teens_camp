@@ -81,7 +81,8 @@
                         <td class="ps-4">
                             <div class="d-flex align-items-center gap-2">
                                 @if($u->avatar)
-                                    <img src="{{ asset('storage/' . $u->avatar) }}" class="rounded-circle border" width="36" height="36" alt="Avatar">
+                                    <img src="{{ $u->avatar_url }}" class="rounded-circle border" width="36" height="36" alt="Avatar"
+                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($u->name) }}&background={{ $u->isStaff() ? 'B91C1C' : '374151' }}&color=fff';">
                                 @else
                                     <span class="rounded-circle text-white d-inline-flex align-items-center justify-content-center fw-bold flex-shrink-0"
                                           style="width:36px;height:36px;font-size:13px;background:{{ $u->isStaff() ? '#B91C1C' : '#374151' }}">
@@ -197,7 +198,8 @@
                     <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
                         <div class="d-flex align-items-center gap-2">
                             @if($u->avatar)
-                                <img src="{{ asset('storage/' . $u->avatar) }}" class="rounded-circle border flex-shrink-0" width="38" height="38" alt="Avatar">
+                                <img src="{{ $u->avatar_url }}" class="rounded-circle border flex-shrink-0" width="38" height="38" alt="Avatar"
+                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($u->name) }}&background={{ $u->isStaff() ? 'B91C1C' : '374151' }}&color=fff';">
                             @else
                                 <span class="rounded-circle text-white d-inline-flex align-items-center justify-content-center fw-bold flex-shrink-0"
                                       style="width:38px;height:38px;font-size:14px;background:{{ $u->isStaff() ? '#B91C1C' : '#374151' }}">
@@ -324,7 +326,8 @@
                 <div class="modal-header border-bottom border-secondary border-opacity-25">
                     <div class="d-flex align-items-center gap-2">
                         @if($u->avatar)
-                            <img src="{{ asset('storage/' . $u->avatar) }}" class="rounded-circle border" width="40" height="40" alt="">
+                            <img src="{{ $u->avatar_url }}" class="rounded-circle border" width="40" height="40" alt=""
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($u->name) }}&background={{ $u->isStaff() ? 'B91C1C' : '374151' }}&color=fff';">
                         @else
                             <span class="rounded-circle text-white d-inline-flex align-items-center justify-content-center fw-bold flex-shrink-0"
                                   style="width:40px;height:40px;font-size:15px;background:{{ $u->isStaff() ? '#B91C1C' : '#374151' }}">

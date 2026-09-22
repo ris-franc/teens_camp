@@ -232,3 +232,15 @@ Route::prefix('backoffice')->name('backoffice.')->group(function () {
         });
     });
 });
+
+// 4. Storage Media Fallback Route (Serves local public storage or redirects seamlessly to Supabase Storage)
+Route::get('/storage/{path}', function (string $path) {
+    $cleanPath = ltrim($path, '/');
+    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+        return \Illuminate\Support\Facades\Storage::disk('public')->response($cleanPath);
+    }
+    $supabaseUrl = rtrim(config('services.supabase.url', 'https://mhrcuhiocqkpfljyddyo.supabase.co'), '/');
+    $bucket = config('services.supabase.bucket', 'camp-media');
+    return redirect("{$supabaseUrl}/storage/v1/object/public/{$bucket}/{$cleanPath}");
+})->where('path', '.*')->name('storage.fallback');
+

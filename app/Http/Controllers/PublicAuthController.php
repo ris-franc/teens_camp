@@ -119,10 +119,13 @@ class PublicAuthController extends Controller
         $user->phone = $request->phone;
 
         if ($request->hasFile('avatar')) {
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
+            if ($user->avatar) {
+                \App\Services\SupabaseStorageService::delete($user->avatar);
             }
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $file = $request->file('avatar');
+            $extension = $file->getClientOriginalExtension() ?: 'jpg';
+            $filename = 'avatar_user_' . $user->id . '_' . time() . '.' . $extension;
+            $path = \App\Services\SupabaseStorageService::upload($file, 'avatars/' . $filename);
             $user->avatar = $path;
         }
 

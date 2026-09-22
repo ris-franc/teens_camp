@@ -550,17 +550,25 @@ class AdminDashboardController extends Controller
         $data = $request->except(['poster', 'core_values', 'remove_poster']);
 
         if ($request->boolean('remove_poster')) {
+            if ($season->poster_path) {
+                \App\Services\SupabaseStorageService::delete($season->poster_path);
+            }
             $data['poster_path'] = null;
         } elseif ($request->hasFile('poster')) {
             $file = $request->file('poster');
-            $extension = $file->getClientOriginalExtension();
+            $extension = $file->getClientOriginalExtension() ?: 'jpg';
             $filename = 'poster_season_' . $season->id . '_' . time() . '.' . $extension;
+            
+            // Backup locally in public/images/posters
             $directory = public_path('images/posters');
             if (!file_exists($directory)) {
-                mkdir($directory, 0755, true);
+                @mkdir($directory, 0755, true);
             }
-            $file->move($directory, $filename);
-            $data['poster_path'] = 'images/posters/' . $filename;
+            @copy($file->getRealPath(), $directory . DIRECTORY_SEPARATOR . $filename);
+
+            // Upload permanently to Supabase Storage
+            $storedPath = \App\Services\SupabaseStorageService::upload($file, 'posters/' . $filename);
+            $data['poster_path'] = $storedPath;
         }
 
         if ($request->has('core_values') && is_array($request->core_values)) {

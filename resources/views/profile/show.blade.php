@@ -24,7 +24,8 @@
                     <div class="d-flex flex-column flex-sm-row align-items-center gap-4 mb-4 pb-4 border-bottom">
                         <div class="position-relative">
                             @if($user->avatar)
-                                <img src="{{ asset('storage/' . $user->avatar) }}" class="rounded-circle border border-3 border-danger shadow" width="96" height="96" alt="Avatar">
+                                <img src="{{ $user->avatar_url }}" class="rounded-circle border border-3 border-danger shadow" width="96" height="96" alt="Avatar"
+                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=B91C1C&color=fff';">
                             @else
                                 <div class="rounded-circle bg-dark border border-2 border-danger text-white d-flex align-items-center justify-content-center fw-bold fs-2 shadow" style="width: 96px; height: 96px;">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}

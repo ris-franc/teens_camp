@@ -202,7 +202,8 @@
                     <div class="dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white text-decoration-none" href="#" id="staffProfileDropdownBtn" data-bs-toggle="dropdown" role="button" aria-expanded="false">
                             @if($staff->avatar)
-                                <img src="{{ asset('storage/' . $staff->avatar) }}" class="rounded-circle border border-danger" width="32" height="32" alt="Avatar">
+                                <img src="{{ $staff->avatar_url }}" class="rounded-circle border border-danger" width="32" height="32" alt="Avatar"
+                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($staff->name) }}&background=B91C1C&color=fff';">
                             @else
                                 <span class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 13px;">
                                     {{ strtoupper(substr($staff->name, 0, 1)) }}

@@ -165,7 +165,8 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
                                 @if(Auth::guard('web')->user()->avatar)
-                                    <img src="{{ asset('storage/' . Auth::guard('web')->user()->avatar) }}" class="rounded-circle border border-danger" width="28" height="28" alt="Avatar">
+                                    <img src="{{ Auth::guard('web')->user()->avatar_url }}" class="rounded-circle border border-danger" width="28" height="28" alt="Avatar"
+                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::guard('web')->user()->name) }}&background=B91C1C&color=fff';">
                                 @else
                                     <span class="rounded-circle bg-danger text-white d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 12px;">
                                         {{ strtoupper(substr(Auth::guard('web')->user()->name, 0, 1)) }}

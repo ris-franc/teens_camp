@@ -150,218 +150,215 @@
     @foreach($seasons as $s)
         <!-- Edit Season Modal -->
         <div class="modal fade" id="editSeasonModal-{{ $s->id }}" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content border-0" style="background:#1a1a1e; color:#fff;">
-                    <form action="{{ route('backoffice.admin.seasons.update', $s) }}" method="POST">
-                        @csrf
-                        <div class="modal-header border-bottom border-secondary border-opacity-25">
-                            <h5 class="modal-title fw-bold text-white">Edit Season: {{ $s->name }}</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold small">Season Name</label>
-                                    <input type="text" class="form-control" name="name" value="{{ $s->name }}" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small">Year</label>
-                                    <input type="text" class="form-control" name="year" value="{{ $s->year }}" required maxlength="4">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small">Status</label>
-                                    <select class="form-select" name="status" required>
-                                        <option value="draft" {{ $s->status === 'draft' ? 'selected' : '' }}>Draft</option>
-                                        <option value="active" {{ $s->status === 'active' ? 'selected' : '' }}>Active (Current Season)</option>
-                                        <option value="archived" {{ $s->status === 'archived' ? 'selected' : '' }}>Archived (Past)</option>
-                                    </select>
-                                </div>
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <form class="modal-content border-0 d-flex flex-column" style="background:#1a1a1e; color:#fff; max-height: 90vh;" action="{{ route('backoffice.admin.seasons.update', $s) }}" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom border-secondary border-opacity-25 flex-shrink-0">
+                        <h5 class="modal-title fw-bold text-white">Edit Season: {{ $s->name }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body flex-grow-1" style="overflow-y: auto;">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Season Name</label>
+                                <input type="text" class="form-control" name="name" value="{{ $s->name }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Year</label>
+                                <input type="text" class="form-control" name="year" value="{{ $s->year }}" required maxlength="4">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Status</label>
+                                <select class="form-select" name="status" required>
+                                    <option value="draft" {{ $s->status === 'draft' ? 'selected' : '' }}>Draft</option>
+                                    <option value="active" {{ $s->status === 'active' ? 'selected' : '' }}>Active (Current Season)</option>
+                                    <option value="archived" {{ $s->status === 'archived' ? 'selected' : '' }}>Archived (Past)</option>
+                                </select>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold small">Camp Theme / Motto</label>
-                                    <input type="text" class="form-control" name="theme" value="{{ $s->theme }}">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold small">Venue / Location</label>
-                                    <input type="text" class="form-control" name="venue" value="{{ $s->venue }}" required>
-                                </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Camp Theme / Motto</label>
+                                <input type="text" class="form-control" name="theme" value="{{ $s->theme }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Venue / Location</label>
+                                <input type="text" class="form-control" name="venue" value="{{ $s->venue }}" required>
+                            </div>
 
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small">Start Date</label>
-                                    <input type="datetime-local" class="form-control" name="start_date" value="{{ $s->start_date->format('Y-m-d\TH:i') }}" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small">End Date</label>
-                                    <input type="datetime-local" class="form-control" name="end_date" value="{{ $s->end_date->format('Y-m-d\TH:i') }}" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small">Camp Price (KES)</label>
-                                    <input type="number" step="1" class="form-control" name="price" value="{{ $s->price }}" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small">Camper Capacity</label>
-                                    <input type="number" class="form-control" name="capacity" value="{{ $s->capacity }}" required>
-                                </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Start Date</label>
+                                <input type="datetime-local" class="form-control" name="start_date" value="{{ $s->start_date->format('Y-m-d\TH:i') }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">End Date</label>
+                                <input type="datetime-local" class="form-control" name="end_date" value="{{ $s->end_date->format('Y-m-d\TH:i') }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Camp Price (KES)</label>
+                                <input type="number" step="1" class="form-control" name="price" value="{{ $s->price }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold small">Camper Capacity</label>
+                                <input type="number" class="form-control" name="capacity" value="{{ $s->capacity }}" required>
+                            </div>
 
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold small">Landing Page Subtitle / Teaser</label>
-                                    <textarea class="form-control" name="landing_subtitle" rows="2">{{ $s->landing_subtitle }}</textarea>
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label fw-semibold small">Full Description</label>
-                                    <textarea class="form-control" name="description" rows="3">{{ $s->description }}</textarea>
-                                </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Landing Page Subtitle / Teaser</label>
+                                <textarea class="form-control" name="landing_subtitle" rows="2">{{ $s->landing_subtitle }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Full Description</label>
+                                <textarea class="form-control" name="description" rows="3">{{ $s->description }}</textarea>
                             </div>
                         </div>
-                        <div class="modal-footer border-top border-secondary border-opacity-25">
-                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-camp-red btn-sm">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="modal-footer border-top border-secondary border-opacity-25 flex-shrink-0 bg-dark">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-camp-red btn-sm">Save Changes</button>
+                    </div>
+                </form>
             </div>
         </div>
 
         <!-- Poster & Core Values Modal -->
         <div class="modal fade" id="brandingModal-{{ $s->id }}" tabindex="-1">
             <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <div class="modal-content border-0" style="background:#1a1a1e; color:#fff;">
-                    <form action="{{ route('backoffice.admin.seasons.update', $s) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="name" value="{{ $s->name }}">
-                        <input type="hidden" name="year" value="{{ $s->year }}">
-                        <input type="hidden" name="status" value="{{ $s->status }}">
-                        <input type="hidden" name="theme" value="{{ $s->theme }}">
-                        <input type="hidden" name="venue" value="{{ $s->venue }}">
-                        <input type="hidden" name="start_date" value="{{ $s->start_date->format('Y-m-d\TH:i') }}">
-                        <input type="hidden" name="end_date" value="{{ $s->end_date->format('Y-m-d\TH:i') }}">
-                        <input type="hidden" name="price" value="{{ $s->price }}">
-                        <input type="hidden" name="capacity" value="{{ $s->capacity }}">
-                        <input type="hidden" name="landing_subtitle" value="{{ $s->landing_subtitle }}">
-                        <input type="hidden" name="description" value="{{ $s->description }}">
+                <form class="modal-content border-0 d-flex flex-column" style="background:#1a1a1e; color:#fff; max-height: 90vh;" action="{{ route('backoffice.admin.seasons.update', $s) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="name" value="{{ $s->name }}">
+                    <input type="hidden" name="year" value="{{ $s->year }}">
+                    <input type="hidden" name="status" value="{{ $s->status }}">
+                    <input type="hidden" name="theme" value="{{ $s->theme }}">
+                    <input type="hidden" name="venue" value="{{ $s->venue }}">
+                    <input type="hidden" name="start_date" value="{{ $s->start_date->format('Y-m-d\TH:i') }}">
+                    <input type="hidden" name="end_date" value="{{ $s->end_date->format('Y-m-d\TH:i') }}">
+                    <input type="hidden" name="price" value="{{ $s->price }}">
+                    <input type="hidden" name="capacity" value="{{ $s->capacity }}">
+                    <input type="hidden" name="landing_subtitle" value="{{ $s->landing_subtitle }}">
+                    <input type="hidden" name="description" value="{{ $s->description }}">
 
-                        <div class="modal-header bg-dark text-white border-bottom border-danger">
-                            <div>
-                                <h5 class="modal-title fw-bold mb-0">
-                                    <i class="bi bi-palette-fill text-danger me-2"></i> Camp Poster &amp; Core Values — {{ $s->name }}
-                                </h5>
-                                <div class="small text-white-50">Changes made here update the public landing page immediately.</div>
+                    <div class="modal-header bg-dark text-white border-bottom border-danger flex-shrink-0">
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0">
+                                <i class="bi bi-palette-fill text-danger me-2"></i> Camp Poster &amp; Core Values — {{ $s->name }}
+                            </h5>
+                            <div class="small text-white-50">Changes made here update the public landing page immediately.</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body p-3 p-md-4 flex-grow-1" style="overflow-y: auto;">
+                        {{-- 1. Poster Section --}}
+                        <div class="camp-card p-3 p-md-4 mb-4 border border-secondary border-opacity-25">
+                            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                                <h6 class="fw-bold mb-0 text-uppercase tracking-wide text-danger">
+                                    <i class="bi bi-image me-1"></i> Official Camp Poster Image
+                                </h6>
+                                <span class="badge bg-dark border text-white small">Landing Page Hero</span>
                             </div>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            <div class="row align-items-center g-4">
+                                <div class="col-md-4 text-center">
+                                    <div class="position-relative d-inline-block rounded-3 overflow-hidden shadow-sm border border-secondary" style="max-width: 220px;">
+                                        <img src="{{ $s->getPosterUrl() }}"
+                                             alt="Camp Poster"
+                                             id="posterPreview-{{ $s->id }}"
+                                             class="img-fluid rounded"
+                                             style="max-height: 260px; object-fit: cover;"
+                                             onerror="this.onerror=null; this.src='{{ asset('images/hero-camp.jpg') }}';">
+                                    </div>
+                                    <div class="small text-muted mt-2">Current Poster</div>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label fw-bold">Upload New Poster Image</label>
+                                    <input type="file"
+                                           class="form-control mb-2"
+                                           name="poster"
+                                           accept="image/jpeg,image/png,image/jpg,image/webp"
+                                           onchange="previewPosterImage(event, 'posterPreview-{{ $s->id }}')">
+                                    <div class="form-text text-muted mb-3">
+                                        Recommended: Portrait ratio (e.g., 4:5 or 1080x1350px). Formats: JPG, PNG, WebP (Max 5MB).
+                                    </div>
+                                    @if($s->poster_path)
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="remove_poster" value="1" id="removePoster-{{ $s->id }}">
+                                            <label class="form-check-label text-danger small fw-semibold" for="removePoster-{{ $s->id }}">
+                                                <i class="bi bi-trash3 me-1"></i> Remove custom poster &amp; revert to default church camp poster
+                                            </label>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="modal-body p-3 p-md-4">
-                            {{-- 1. Poster Section --}}
-                            <div class="camp-card p-3 p-md-4 mb-4 border border-secondary border-opacity-25">
-                                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                        {{-- 2. Core Values Section --}}
+                        <div class="camp-card p-3 p-md-4 border border-secondary border-opacity-25">
+                            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                                <div>
                                     <h6 class="fw-bold mb-0 text-uppercase tracking-wide text-danger">
-                                        <i class="bi bi-image me-1"></i> Official Camp Poster Image
+                                        <i class="bi bi-stars me-1"></i> Camp Core Values
                                     </h6>
-                                    <span class="badge bg-dark border text-white small">Landing Page Hero</span>
+                                    <div class="small text-muted">Customize the values, scripture focus, and pillars shown to parents &amp; campers.</div>
                                 </div>
-                                <div class="row align-items-center g-4">
-                                    <div class="col-md-4 text-center">
-                                        <div class="position-relative d-inline-block rounded-3 overflow-hidden shadow-sm border border-secondary" style="max-width: 220px;">
-                                            <img src="{{ $s->getPosterUrl() }}"
-                                                 alt="Camp Poster"
-                                                 id="posterPreview-{{ $s->id }}"
-                                                 class="img-fluid rounded"
-                                                 style="max-height: 260px; object-fit: cover;">
-                                        </div>
-                                        <div class="small text-muted mt-2">Current Poster</div>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <label class="form-label fw-bold">Upload New Poster Image</label>
-                                        <input type="file"
-                                               class="form-control mb-2"
-                                               name="poster"
-                                               accept="image/jpeg,image/png,image/jpg,image/webp"
-                                               onchange="previewPosterImage(event, 'posterPreview-{{ $s->id }}')">
-                                        <div class="form-text text-muted mb-3">
-                                            Recommended: Portrait ratio (e.g., 4:5 or 1080x1350px). Formats: JPG, PNG, WebP (Max 5MB).
-                                        </div>
-                                        @if($s->poster_path)
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="remove_poster" value="1" id="removePoster-{{ $s->id }}">
-                                                <label class="form-check-label text-danger small fw-semibold" for="removePoster-{{ $s->id }}">
-                                                    <i class="bi bi-trash3 me-1"></i> Remove custom poster &amp; revert to default church camp poster
-                                                </label>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="addCoreValueRow('valuesContainer-{{ $s->id }}')">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Value
+                                </button>
                             </div>
 
-                            {{-- 2. Core Values Section --}}
-                            <div class="camp-card p-3 p-md-4 border border-secondary border-opacity-25">
-                                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
-                                    <div>
-                                        <h6 class="fw-bold mb-0 text-uppercase tracking-wide text-danger">
-                                            <i class="bi bi-stars me-1"></i> Camp Core Values
-                                        </h6>
-                                        <div class="small text-muted">Customize the values, scripture focus, and pillars shown to parents &amp; campers.</div>
-                                    </div>
-                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="addCoreValueRow('valuesContainer-{{ $s->id }}')">
-                                        <i class="bi bi-plus-circle me-1"></i> Add Value
-                                    </button>
-                                </div>
-
-                                <div id="valuesContainer-{{ $s->id }}" class="vstack gap-3">
-                                    @php
-                                        $values = $s->getCoreValues();
-                                    @endphp
-                                    @foreach($values as $idx => $val)
-                                        <div class="value-row p-3 rounded bg-dark border border-secondary border-opacity-50 position-relative">
-                                            <div class="row g-2 align-items-start">
-                                                <div class="col-12 col-md-3">
-                                                    <label class="form-label small fw-bold mb-1">Icon</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <span class="input-group-text bg-body text-danger border-secondary"><i class="bi {{ $val['icon'] ?? 'bi-stars' }}" id="iconPreview-{{ $s->id }}-{{ $idx }}"></i></span>
-                                                        <input type="text"
-                                                               class="form-control border-secondary"
-                                                               name="core_values[{{ $idx }}][icon]"
-                                                               value="{{ $val['icon'] ?? 'bi-stars' }}"
-                                                               placeholder="bi-fire"
-                                                               oninput="document.getElementById('iconPreview-{{ $s->id }}-{{ $idx }}').className = 'bi ' + this.value">
-                                                    </div>
-                                                    <div class="form-text text-muted" style="font-size: 11px;">e.g. bi-fire, bi-people-fill</div>
-                                                </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label class="form-label small fw-bold mb-1">Value Title</label>
+                            <div id="valuesContainer-{{ $s->id }}" class="vstack gap-3">
+                                @php
+                                    $values = $s->getCoreValues();
+                                @endphp
+                                @foreach($values as $idx => $val)
+                                    <div class="value-row p-3 rounded bg-dark border border-secondary border-opacity-50 position-relative">
+                                        <div class="row g-2 align-items-start">
+                                            <div class="col-12 col-md-3">
+                                                <label class="form-label small fw-bold mb-1">Icon</label>
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text bg-body text-danger border-secondary"><i class="bi {{ $val['icon'] ?? 'bi-stars' }}" id="iconPreview-{{ $s->id }}-{{ $idx }}"></i></span>
                                                     <input type="text"
-                                                           class="form-control form-control-sm border-secondary"
-                                                           name="core_values[{{ $idx }}][title]"
-                                                           value="{{ $val['title'] }}"
-                                                           placeholder="e.g. Christ-Centered Faith"
-                                                           required>
+                                                           class="form-control border-secondary"
+                                                           name="core_values[{{ $idx }}][icon]"
+                                                           value="{{ $val['icon'] ?? 'bi-stars' }}"
+                                                           placeholder="bi-fire"
+                                                           oninput="document.getElementById('iconPreview-{{ $s->id }}-{{ $idx }}').className = 'bi ' + this.value">
                                                 </div>
-                                                <div class="col-12 col-md-4">
-                                                    <label class="form-label small fw-bold mb-1">Description</label>
-                                                    <textarea class="form-control form-control-sm border-secondary"
-                                                              name="core_values[{{ $idx }}][description]"
-                                                              rows="2"
-                                                              placeholder="Short description for campers and parents">{{ $val['description'] }}</textarea>
-                                                </div>
-                                                <div class="col-12 col-md-1 text-end pt-md-4">
-                                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.value-row').remove()" title="Delete this value">
-                                                        <i class="bi bi-trash3"></i>
-                                                    </button>
-                                                </div>
+                                                <div class="form-text text-muted" style="font-size: 11px;">e.g. bi-fire, bi-people-fill</div>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label class="form-label small fw-bold mb-1">Value Title</label>
+                                                <input type="text"
+                                                       class="form-control form-control-sm border-secondary"
+                                                       name="core_values[{{ $idx }}][title]"
+                                                       value="{{ $val['title'] }}"
+                                                       placeholder="e.g. Christ-Centered Faith"
+                                                       required>
+                                            </div>
+                                            <div class="col-12 col-md-4">
+                                                <label class="form-label small fw-bold mb-1">Description</label>
+                                                <textarea class="form-control form-control-sm border-secondary"
+                                                          name="core_values[{{ $idx }}][description]"
+                                                          rows="2"
+                                                          placeholder="Short description for campers and parents">{{ $val['description'] }}</textarea>
+                                            </div>
+                                            <div class="col-12 col-md-1 text-end pt-md-4">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.value-row').remove()" title="Delete this value">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
+                    </div>
 
-                        <div class="modal-footer border-top border-secondary border-opacity-25">
-                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-camp-red btn-sm px-4">
-                                <i class="bi bi-check2-circle me-1"></i> Save Poster &amp; Core Values
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="modal-footer border-top border-secondary border-opacity-25 flex-shrink-0 bg-dark position-sticky bottom-0" style="z-index: 10;">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-camp-red btn-sm px-4">
+                            <i class="bi bi-check2-circle me-1"></i> Save Poster &amp; Core Values
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     @endforeach

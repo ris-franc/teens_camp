@@ -77,8 +77,14 @@ class CampSeason extends Model
 
     public function getPosterUrl(): string
     {
-        if ($this->poster_path && file_exists(public_path($this->poster_path))) {
-            return asset($this->poster_path);
+        if ($this->poster_path) {
+            if (str_starts_with($this->poster_path, 'http://') || str_starts_with($this->poster_path, 'https://')) {
+                return $this->poster_path;
+            }
+            if (file_exists(public_path($this->poster_path))) {
+                return asset($this->poster_path);
+            }
+            return \App\Services\SupabaseStorageService::getUrl($this->poster_path);
         }
         if (file_exists(public_path('images/camp-poster.jpg'))) {
             return asset('images/camp-poster.jpg');

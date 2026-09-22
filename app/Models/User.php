@@ -101,6 +101,17 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'pastor', 'registration', 'campaign', 'campaign_head']);
     }
 
+    /**
+     * Get avatar URL (Supabase Storage or local).
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (!$this->avatar) {
+            return null;
+        }
+        return \App\Services\SupabaseStorageService::getUrl($this->avatar);
+    }
+
     // Relationships
     public function teens(): BelongsToMany
     {
